@@ -374,3 +374,125 @@ html, body{
   height:auto;       /* override fixed height */
   min-height:0;      /* allow flex to shrink properly */
 }
+
+/* --- Start page gender UI polish --- */
+.centerWrap{
+  min-height: 100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding: 24px;
+}
+
+.startCard{
+  max-width: 520px;
+  width: 100%;
+}
+
+.startInner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 14px;
+}
+
+.logoMark{
+  font-size: 42px;
+}
+
+.onlinePill{
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(255, 0, 160, 0.06);
+  border: 1px solid rgba(255, 0, 160, 0.15);
+  font-weight: 600;
+}
+
+.bigHeading{
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align:center;
+}
+
+.lead{
+  text-align:center;
+  max-width: 420px;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.sectionLabel{
+  align-self:flex-start;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
+.reqStar{
+  color: #ff007a;
+  font-weight: 900;
+}
+
+.genderGrid{
+  width: 100%;
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.genderBtn{
+  appearance: none;
+  border: 2px solid rgba(0,0,0,0.08);
+  background: rgba(255,255,255,0.85);
+  border-radius: 16px;
+  padding: 12px 10px;
+  cursor: pointer;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  transition: transform .08s ease, border-color .12s ease, box-shadow .12s ease;
+  user-select:none;
+}
+
+.genderBtn:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255, 0, 160, 0.25);
+}
+
+.genderBtn.active{
+  border-color: rgba(255, 0, 160, 0.85);
+  box-shadow: 0 0 0 4px rgba(255, 0, 160, 0.12);
+}
+
+.genderIcon{
+  font-size: 22px;
+}
+
+.genderName{
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.genderHint{
+  font-size: 12px;
+  opacity: 0.65;
+  margin-top: 2px;
+}
+
+.bigCTA{
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.btnPrimary:disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.smallNote{
+  font-size: 12px;
+  opacity: 0.6;
+}

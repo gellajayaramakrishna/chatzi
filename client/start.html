@@ -30,7 +30,7 @@
           <div class="genderGrid">
             <button class="genderBtn" data-gender="Male" type="button">
               <div class="genderIcon">👨</div>
-              <div class="genderText">
+              <div>
                 <div class="genderName">Male</div>
                 <div class="genderHint">Show as Male</div>
               </div>
@@ -38,7 +38,7 @@
 
             <button class="genderBtn" data-gender="Female" type="button">
               <div class="genderIcon">👩</div>
-              <div class="genderText">
+              <div>
                 <div class="genderName">Female</div>
                 <div class="genderHint">Show as Female</div>
               </div>
@@ -46,27 +46,29 @@
 
             <button class="genderBtn" data-gender="Other" type="button">
               <div class="genderIcon">🧑</div>
-              <div class="genderText">
+              <div>
                 <div class="genderName">Other</div>
                 <div class="genderHint">Show as Other</div>
               </div>
             </button>
           </div>
 
-          <button id="textBtn" class="btnPrimary bigCTA" type="button">
-            💬 Text Chat
+          <button id="textBtn" class="btnPrimary bigCTA" type="button" disabled>
+            💬 Select gender to continue
           </button>
 
-          <div class="smallNote">
-            Random matching • No personal info • 18+
-          </div>
+          <div class="smallNote">Random matching • No personal info • 18+</div>
         </div>
       </div>
     </div>
 
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+
     <script>
-      const socket = io();
+      const BACKEND_URL = "https://chatzi-backend.onrender.com";
+      const socket = io(BACKEND_URL, { transports: ["websocket", "polling"] });
+
+      const textBtn = document.getElementById("textBtn");
       let selectedGender = null;
 
       socket.on("online_count", (count) => {
@@ -83,20 +85,19 @@
         );
       }
 
-      // Premium selection behavior
       document.querySelectorAll(".genderBtn").forEach((btn) => {
         btn.addEventListener("click", () => {
           document.querySelectorAll(".genderBtn").forEach((b) => b.classList.remove("active"));
           btn.classList.add("active");
           selectedGender = btn.dataset.gender;
+
+          textBtn.disabled = false;
+          textBtn.textContent = "💬 Start Text Chat";
         });
       });
 
-      document.getElementById("textBtn").onclick = () => {
-        if (!selectedGender) {
-          alert("Please select your gender");
-          return;
-        }
+      textBtn.onclick = () => {
+        if (!selectedGender) return;
         const name = generateName();
         window.location.href =
           `/chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
