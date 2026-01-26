@@ -1,36 +1,46 @@
 const express = require("express");
 const http = require("http");
+const cors = require("cors");
 const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
 
-function isAllowed(origin) {
-  if (!origin) return true; // curl / uptime monitors
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // uptime robot, curl
   try {
-    const u = new URL(origin);
-    const host = u.hostname;
+    const { hostname } = new URL(origin);
     return (
-      host === "chatzi.vercel.app" ||
-      host.endsWith(".vercel.app") ||
-      host === "chatzi.me" ||
-      host.endsWith(".chatzi.me") ||
-      host === "localhost"
+      hostname === "chatzi.vercel.app" ||
+      hostname.endsWith(".vercel.app") ||
+      hostname === "chatzi.me" ||
+      hostname.endsWith(".chatzi.me") ||
+      hostname === "localhost"
     );
   } catch {
     return false;
   }
 }
 
-const io = new Server(server, {
-  cors: {
-    origin: (origin, cb) => cb(null, isAllowed(origin)),
-    methods: ["GET", "POST"]
-  }
-});
+// ✅ CORS for normal HTTP routes like /health
+app.use(
+  cors({
+    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
+    credentials: true,
+  })
+);
 
 app.get("/", (req, res) => res.send("Chatzi backend is running ✅"));
 app.get("/health", (req, res) => res.json({ ok: true }));
+
+// ✅ Socket.IO CORS
+const io = new Server(server, {
+  cors: {
+    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+});
 
 let waitingUser = null;
 const profiles = new Map();
@@ -79,7 +89,7 @@ io.on("connection", (socket) => {
 
     const now = Date.now();
     const last = lastMsgTime.get(socket.id) || 0;
-    if (now - last < 500) return;
+    if (now - last < 500) return; // anti spam
 
     lastMsgTime.set(socket.id, now);
     socket.to(room).emit("receive_message", message);
