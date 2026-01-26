@@ -92,7 +92,6 @@ function loadSocketIoCdn(){
   });
 }
 
-// ✅ retry wake for up to 90 seconds
 async function wakeServerWithRetry(){
   const start = Date.now();
   let attempt = 0;
@@ -101,17 +100,13 @@ async function wakeServerWithRetry(){
     attempt++;
     const secs = Math.floor((Date.now() - start)/1000);
     setStatus(`Waking server… (${secs}s)`, "wait");
-    if (attempt === 1) addMsg("Waking server… first time can take up to ~1 min on free hosting.");
+    if (attempt === 1) addMsg("Waking server… first time can take ~1 min on free hosting.");
 
     try {
-      // give Render more time (30 seconds per attempt)
       const res = await timeoutFetch(BACKEND + "/health", 30000);
       if (res.ok) return true;
-    } catch (e) {
-      // ignore and retry
-    }
+    } catch {}
 
-    // wait 2 seconds then retry
     await new Promise(r => setTimeout(r, 2000));
   }
   return false;
@@ -122,8 +117,8 @@ async function startConnection(){
 
   const ok = await wakeServerWithRetry();
   if (!ok) {
-    setStatus("Server not responding. Try again.", "off");
-    addMsg("⚠️ Backend still not responding after 90s. This is hosting sleep/network. Press New Chat to retry.");
+    setStatus("Server not responding. Press New Chat.", "off");
+    addMsg("⚠️ Backend still not responding after 90s. Press New Chat to retry.");
     return;
   }
 
@@ -137,7 +132,12 @@ async function startConnection(){
   }
 
   setStatus("Connecting…", "wait");
-  socket = io(BACKEND, { transports: ["websocket","polling"], timeout: 20000 });
+
+  // ✅ FORCE polling (no WebSocket)
+  socket = io(BACKEND, {
+    transports: ["polling"],
+    timeout: 60000
+  });
 
   socket.on("connect", () => {
     setStatus("Finding stranger…", "wait");
@@ -167,9 +167,9 @@ async function startConnection(){
     setStatus("Stranger disconnected", "off");
   });
 
-  socket.on("connect_error", (e) => {
-    setStatus("Socket connect failed. New Chat to retry.", "off");
-    addMsg("⚠️ Socket connect failed (CORS/origin/network). Press New Chat.", "system");
+  socket.on("connect_error", () => {
+    setStatus("Connection failed. Press New Chat.", "off");
+    addMsg("⚠️ Connection failed. Press New Chat to retry.", "system");
     sendBtn.disabled = true;
   });
 }

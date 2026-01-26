@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 
 function isAllowedOrigin(origin) {
-  if (!origin) return true; // uptime robot, curl
+  if (!origin) return true; // uptime robot, curl, etc.
   try {
     const { hostname } = new URL(origin);
     return (
@@ -15,7 +15,8 @@ function isAllowedOrigin(origin) {
       hostname.endsWith(".vercel.app") ||
       hostname === "chatzi.me" ||
       hostname.endsWith(".chatzi.me") ||
-      hostname === "localhost"
+      hostname === "localhost" ||
+      hostname === "127.0.0.1"
     );
   } catch {
     return false;
@@ -33,13 +34,14 @@ app.use(
 app.get("/", (req, res) => res.send("Chatzi backend is running ✅"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-// ✅ Socket.IO CORS
+// ✅ Socket.IO (FORCE polling to avoid WebSocket-blocked networks)
 const io = new Server(server, {
   cors: {
     origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
     methods: ["GET", "POST"],
     credentials: true,
   },
+  transports: ["polling"],
 });
 
 let waitingUser = null;
@@ -89,7 +91,7 @@ io.on("connection", (socket) => {
 
     const now = Date.now();
     const last = lastMsgTime.get(socket.id) || 0;
-    if (now - last < 500) return; // anti spam
+    if (now - last < 400) return; // anti spam
 
     lastMsgTime.set(socket.id, now);
     socket.to(room).emit("receive_message", message);
