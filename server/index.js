@@ -5,14 +5,26 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
-const allowedOrigins = [
-  "https://chatzi.vercel.app",
-  "http://localhost:3000"
-];
+function isAllowed(origin) {
+  if (!origin) return true; // curl / uptime monitors
+  try {
+    const u = new URL(origin);
+    const host = u.hostname;
+    return (
+      host === "chatzi.vercel.app" ||
+      host.endsWith(".vercel.app") ||
+      host === "chatzi.me" ||
+      host.endsWith(".chatzi.me") ||
+      host === "localhost"
+    );
+  } catch {
+    return false;
+  }
+}
 
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, cb) => cb(null, isAllowed(origin)),
     methods: ["GET", "POST"]
   }
 });
@@ -39,10 +51,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("find_match", () => {
-    if (!profiles.has(socket.id)) {
-      socket.emit("need_profile");
-      return;
-    }
+    if (!profiles.has(socket.id)) return socket.emit("need_profile");
 
     if (waitingUser && waitingUser.id !== socket.id) {
       const room = `room-${waitingUser.id}-${socket.id}`;
@@ -57,6 +66,7 @@ io.on("connection", (socket) => {
 
       waitingUser.currentRoom = room;
       socket.currentRoom = room;
+
       waitingUser = null;
     } else {
       waitingUser = socket;
