@@ -92,38 +92,61 @@ function loadSocketIoCdn(){
   });
 }
 
-async function startConnection(){
-  setStatus("Waking server...", "wait");
-  addMsg("Waking server (free hosting). If it sleeps, first match may take a bit…");
+// ✅ retry wake for up to 90 seconds
+async function wakeServerWithRetry(){
+  const start = Date.now();
+  let attempt = 0;
 
-  try {
-    await timeoutFetch(BACKEND + "/health", 8000);
-  } catch (e) {
-    setStatus("Server sleeping. Press New Chat to retry.", "off");
-    addMsg("⚠️ Backend didn’t respond yet. Press New Chat to retry.", "system");
+  while (Date.now() - start < 90000) {
+    attempt++;
+    const secs = Math.floor((Date.now() - start)/1000);
+    setStatus(`Waking server… (${secs}s)`, "wait");
+    if (attempt === 1) addMsg("Waking server… first time can take up to ~1 min on free hosting.");
+
+    try {
+      // give Render more time (30 seconds per attempt)
+      const res = await timeoutFetch(BACKEND + "/health", 30000);
+      if (res.ok) return true;
+    } catch (e) {
+      // ignore and retry
+    }
+
+    // wait 2 seconds then retry
+    await new Promise(r => setTimeout(r, 2000));
+  }
+  return false;
+}
+
+async function startConnection(){
+  setStatus("Preparing…", "wait");
+
+  const ok = await wakeServerWithRetry();
+  if (!ok) {
+    setStatus("Server not responding. Try again.", "off");
+    addMsg("⚠️ Backend still not responding after 90s. This is hosting sleep/network. Press New Chat to retry.");
     return;
   }
 
-  setStatus("Loading chat engine...", "wait");
+  setStatus("Loading chat engine…", "wait");
   try {
     await loadSocketIoCdn();
-  } catch (e) {
-    setStatus("CDN blocked. Try different network.", "off");
-    addMsg("⚠️ Socket library didn't load (network blocked). Try another Wi-Fi/hotspot.", "system");
+  } catch {
+    setStatus("Socket CDN blocked. Try different network.", "off");
+    addMsg("⚠️ socket.io CDN didn’t load. Try hotspot / different Wi-Fi.");
     return;
   }
 
-  setStatus("Connecting...", "wait");
-  socket = io(BACKEND, { transports: ["websocket","polling"], timeout: 8000 });
+  setStatus("Connecting…", "wait");
+  socket = io(BACKEND, { transports: ["websocket","polling"], timeout: 20000 });
 
   socket.on("connect", () => {
-    setStatus("Finding stranger...", "wait");
+    setStatus("Finding stranger…", "wait");
     socket.emit("register_profile", { name: myName, gender: myGender });
     socket.emit("find_match");
   });
 
   socket.on("waiting", () => {
-    setStatus("Waiting for a stranger...", "wait");
+    setStatus("Waiting for a stranger…", "wait");
     sendBtn.disabled = true;
   });
 
@@ -144,10 +167,10 @@ async function startConnection(){
     setStatus("Stranger disconnected", "off");
   });
 
-  socket.on("connect_error", () => {
-    setStatus("Connection failed. Press New Chat to retry.", "off");
+  socket.on("connect_error", (e) => {
+    setStatus("Socket connect failed. New Chat to retry.", "off");
+    addMsg("⚠️ Socket connect failed (CORS/origin/network). Press New Chat.", "system");
     sendBtn.disabled = true;
-    addMsg("⚠️ Connection failed. Press New Chat to retry.", "system");
   });
 }
 
@@ -161,7 +184,7 @@ function skipChat(){
     return;
   }
 
-  setStatus("Finding new stranger...", "wait");
+  setStatus("Finding new stranger…", "wait");
   socket.emit("find_match");
 }
 
@@ -183,8 +206,6 @@ inputEl.addEventListener("keydown", e => {
 
 document.getElementById("nextBtn").onclick = skipChat;
 
-// Start (never blocks page render)
-setStatus("Preparing...", "wait");
 setTimeout(startConnection, 100);
 </script>
 </body>
