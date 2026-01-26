@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatzi - Start Chatting</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="container centerWrap">
+      <div class="card startCard">
+        <div class="startInner">
+          <div class="logoMark">💬</div>
+
+          <div class="onlinePill">
+            👥 <span id="onlineCount">0</span> people online now
+          </div>
+
+          <div class="bigHeading">Start Chatting!</div>
+          <p class="lead">
+            Choose your gender and get matched instantly with a random stranger.
+            Anonymous, fast, and simple.
+          </p>
+
+          <div class="sectionLabel">
+            Select your gender <span class="reqStar">*</span>
+          </div>
+
+          <div class="genderGrid">
+            <button class="genderBtn" data-gender="Male" type="button">
+              <div class="genderIcon">👨</div>
+              <div class="genderText">
+                <div class="genderName">Male</div>
+                <div class="genderHint">Show as Male</div>
+              </div>
+            </button>
+
+            <button class="genderBtn" data-gender="Female" type="button">
+              <div class="genderIcon">👩</div>
+              <div class="genderText">
+                <div class="genderName">Female</div>
+                <div class="genderHint">Show as Female</div>
+              </div>
+            </button>
+
+            <button class="genderBtn" data-gender="Other" type="button">
+              <div class="genderIcon">🧑</div>
+              <div class="genderText">
+                <div class="genderName">Other</div>
+                <div class="genderHint">Show as Other</div>
+              </div>
+            </button>
+          </div>
+
+          <button id="textBtn" class="btnPrimary bigCTA" type="button">
+            💬 Text Chat
+          </button>
+
+          <div class="smallNote">
+            Random matching • No personal info • 18+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      let selectedGender = null;
+
+      socket.on("online_count", (count) => {
+        document.getElementById("onlineCount").textContent = count;
+      });
+
+      function generateName() {
+        const adjectives = ["Silent","Blue","Happy","Dark","Fast","Chill","Lucky","Cool","Wild","Neon"];
+        const nouns = ["Tiger","Fox","Wolf","Eagle","Ghost","Lion","Panda","Hawk","Bear","Cat"];
+        return (
+          adjectives[Math.floor(Math.random() * adjectives.length)] +
+          nouns[Math.floor(Math.random() * nouns.length)] +
+          Math.floor(Math.random() * 100)
+        );
+      }
+
+      // Premium selection behavior
+      document.querySelectorAll(".genderBtn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".genderBtn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          selectedGender = btn.dataset.gender;
+        });
+      });
+
+      document.getElementById("textBtn").onclick = () => {
+        if (!selectedGender) {
+          alert("Please select your gender");
+          return;
+        }
+        const name = generateName();
+        window.location.href =
+          `/chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
+      };
+    </script>
+  </body>
+</html>

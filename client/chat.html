@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chatzi - Chat</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="fullChatPage">
+  <div class="container">
+    <div class="topbar">
+      <div class="brand">💬 Chatzi</div>
+      <div class="badge">Press <b>Esc</b> to skip</div>
+    </div>
+
+    <div class="card">
+      <div class="header">
+        <div>
+          <p class="title">Chat</p>
+          <div class="sub">
+            You: <b id="myName"></b>
+            <span id="myGender"></span>
+          </div>
+        </div>
+
+        <div class="status">
+          <span id="dot" class="dot wait"></span>
+          <span id="status">Finding stranger...</span>
+        </div>
+      </div>
+
+      <div id="messages" class="chatArea"></div>
+
+      <div class="footer">
+        <input id="msgInput" class="input" placeholder="Type a message..." />
+        <button id="sendBtn" class="btnPrimary" disabled>Send</button>
+        <button id="nextBtn" class="btn">New Chat</button>
+      </div>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const myName = params.get("name") || "Anonymous";
+const myGender = params.get("gender") || "Other";
+
+document.getElementById("myName").textContent = myName;
+document.getElementById("myGender").textContent = `(${myGender})`;
+
+const socket = io();
+let currentRoom = null;
+
+const statusEl = document.getElementById("status");
+const dotEl = document.getElementById("dot");
+const messagesEl = document.getElementById("messages");
+const inputEl = document.getElementById("msgInput");
+const sendBtn = document.getElementById("sendBtn");
+
+function setStatus(text, mode){
+  statusEl.textContent = text;
+  dotEl.className = "dot " + mode;
+}
+
+function addMsg(text, type="system"){
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + type;
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+  wrap.appendChild(bubble);
+  messagesEl.appendChild(wrap);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function skipChat(){
+  messagesEl.innerHTML = "";
+  currentRoom = null;
+  sendBtn.disabled = true;
+  setStatus("Finding new stranger...", "wait");
+  socket.emit("find_match");
+}
+
+document.addEventListener("keydown", e => {
+  if(e.key === "Escape") skipChat();
+});
+
+socket.on("connect", () => {
+  socket.emit("register_profile", { name: myName, gender: myGender });
+  socket.emit("find_match");
+});
+
+socket.on("waiting", () => {
+  setStatus("Waiting for a stranger...", "wait");
+  sendBtn.disabled = true;
+});
+
+socket.on("matched", ({ room, partner }) => {
+  currentRoom = room;
+  messagesEl.innerHTML = "";
+  setStatus(`${partner.gender} connected ✅`, "ok");
+  addMsg("You are now chatting with a stranger. Be respectful 🙂");
+  sendBtn.disabled = false;
+  inputEl.focus();
+});
+
+socket.on("receive_message", msg => {
+  addMsg(msg, "them");
+});
+
+socket.on("partner_left", () => {
+  addMsg("⚠️ Stranger left the chat");
+  sendBtn.disabled = true;
+  setStatus("Stranger disconnected", "off");
+});
+
+sendBtn.onclick = () => {
+  const msg = inputEl.value.trim();
+  if(!msg || !currentRoom) return;
+  addMsg(msg, "me");
+  socket.emit("send_message", { room: currentRoom, message: msg });
+  inputEl.value = "";
+};
+
+inputEl.addEventListener("keydown", e => {
+  if(e.key === "Enter") sendBtn.click();
+});
+
+document.getElementById("nextBtn").onclick = skipChat;
+</script>
+</body>
+</html>
