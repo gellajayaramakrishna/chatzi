@@ -20,13 +20,13 @@
           <p class="title">Chat</p>
           <div class="sub">
             You: <b id="myName"></b>
-            <span id="myGender"></span>
+            <span id="myGender" style="color:#6b7280;"></span>
           </div>
         </div>
 
         <div class="status">
           <span id="dot" class="dot wait"></span>
-          <span id="status">Finding stranger...</span>
+          <span id="status">Waking server...</span>
         </div>
       </div>
 
@@ -40,8 +40,10 @@
     </div>
   </div>
 
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
+const BACKEND = "https://chatzi-backend.onrender.com";
+
 const params = new URLSearchParams(window.location.search);
 const myName = params.get("name") || "Anonymous";
 const myGender = params.get("gender") || "Other";
@@ -49,7 +51,7 @@ const myGender = params.get("gender") || "Other";
 document.getElementById("myName").textContent = myName;
 document.getElementById("myGender").textContent = `(${myGender})`;
 
-const socket = io();
+let socket = null;
 let currentRoom = null;
 
 const statusEl = document.getElementById("status");
@@ -74,50 +76,86 @@ function addMsg(text, type="system"){
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
+function withTimeout(promiseFactory, ms) {
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), ms);
+  return promiseFactory(controller.signal).finally(() => clearTimeout(t));
+}
+
+async function wakeThenConnect(){
+  setStatus("Waking server...", "wait");
+  try{
+    await withTimeout((signal) => fetch(BACKEND + "/health", { signal, cache:"no-store" }), 10000);
+  }catch(e){
+    setStatus("Server sleeping. Click New Chat to retry.", "off");
+    addMsg("⚠️ Backend is sleeping (free hosting). Press New Chat to retry.", "system");
+    return;
+  }
+
+  connectSocket();
+}
+
+function connectSocket(){
+  setStatus("Connecting...", "wait");
+
+  socket = io(BACKEND, { transports:["websocket","polling"], timeout: 10000 });
+
+  socket.on("connect", () => {
+    setStatus("Finding stranger...", "wait");
+    socket.emit("register_profile", { name: myName, gender: myGender });
+    socket.emit("find_match");
+  });
+
+  socket.on("waiting", () => {
+    setStatus("Waiting for a stranger...", "wait");
+    sendBtn.disabled = true;
+  });
+
+  socket.on("matched", ({ room, partner }) => {
+    currentRoom = room;
+    messagesEl.innerHTML = "";
+    setStatus(`${partner.gender} connected ✅`, "ok");
+    addMsg("You are now chatting with a stranger. Be respectful 🙂");
+    sendBtn.disabled = false;
+    inputEl.focus();
+  });
+
+  socket.on("receive_message", (msg) => addMsg(msg, "them"));
+
+  socket.on("partner_left", () => {
+    addMsg("⚠️ Stranger left the chat");
+    sendBtn.disabled = true;
+    setStatus("Stranger disconnected", "off");
+  });
+
+  socket.on("connect_error", () => {
+    setStatus("Connection failed. Press New Chat to retry.", "off");
+    sendBtn.disabled = true;
+  });
+}
+
 function skipChat(){
   messagesEl.innerHTML = "";
   currentRoom = null;
   sendBtn.disabled = true;
+
+  // If socket not connected yet, retry waking backend
+  if (!socket || socket.disconnected) {
+    wakeThenConnect();
+    return;
+  }
+
   setStatus("Finding new stranger...", "wait");
   socket.emit("find_match");
 }
 
 document.addEventListener("keydown", e => {
-  if(e.key === "Escape") skipChat();
-});
-
-socket.on("connect", () => {
-  socket.emit("register_profile", { name: myName, gender: myGender });
-  socket.emit("find_match");
-});
-
-socket.on("waiting", () => {
-  setStatus("Waiting for a stranger...", "wait");
-  sendBtn.disabled = true;
-});
-
-socket.on("matched", ({ room, partner }) => {
-  currentRoom = room;
-  messagesEl.innerHTML = "";
-  setStatus(`${partner.gender} connected ✅`, "ok");
-  addMsg("You are now chatting with a stranger. Be respectful 🙂");
-  sendBtn.disabled = false;
-  inputEl.focus();
-});
-
-socket.on("receive_message", msg => {
-  addMsg(msg, "them");
-});
-
-socket.on("partner_left", () => {
-  addMsg("⚠️ Stranger left the chat");
-  sendBtn.disabled = true;
-  setStatus("Stranger disconnected", "off");
+  if (e.key === "Escape") skipChat();
 });
 
 sendBtn.onclick = () => {
   const msg = inputEl.value.trim();
-  if(!msg || !currentRoom) return;
+  if(!msg || !currentRoom || !socket || socket.disconnected) return;
   addMsg(msg, "me");
   socket.emit("send_message", { room: currentRoom, message: msg });
   inputEl.value = "";
@@ -128,6 +166,9 @@ inputEl.addEventListener("keydown", e => {
 });
 
 document.getElementById("nextBtn").onclick = skipChat;
+
+// Start flow
+setTimeout(wakeThenConnect, 50);
 </script>
 </body>
 </html>
