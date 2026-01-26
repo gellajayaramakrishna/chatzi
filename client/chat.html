@@ -26,7 +26,7 @@
 
         <div class="status">
           <span id="dot" class="dot wait"></span>
-          <span id="status">Waking server...</span>
+          <span id="status">Preparing...</span>
         </div>
       </div>
 
@@ -40,7 +40,6 @@
     </div>
   </div>
 
-<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script>
 const BACKEND = "https://chatzi-backend.onrender.com";
 
@@ -76,29 +75,46 @@ function addMsg(text, type="system"){
   messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
-function withTimeout(promiseFactory, ms) {
+function timeoutFetch(url, ms){
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), ms);
-  return promiseFactory(controller.signal).finally(() => clearTimeout(t));
+  return fetch(url, { signal: controller.signal, cache: "no-store" })
+    .finally(() => clearTimeout(t));
 }
 
-async function wakeThenConnect(){
+function loadSocketIoCdn(){
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function startConnection(){
   setStatus("Waking server...", "wait");
-  try{
-    await withTimeout((signal) => fetch(BACKEND + "/health", { signal, cache:"no-store" }), 10000);
-  }catch(e){
-    setStatus("Server sleeping. Click New Chat to retry.", "off");
-    addMsg("⚠️ Backend is sleeping (free hosting). Press New Chat to retry.", "system");
+  addMsg("Waking server (free hosting). If it sleeps, first match may take a bit…");
+
+  try {
+    await timeoutFetch(BACKEND + "/health", 8000);
+  } catch (e) {
+    setStatus("Server sleeping. Press New Chat to retry.", "off");
+    addMsg("⚠️ Backend didn’t respond yet. Press New Chat to retry.", "system");
     return;
   }
 
-  connectSocket();
-}
+  setStatus("Loading chat engine...", "wait");
+  try {
+    await loadSocketIoCdn();
+  } catch (e) {
+    setStatus("CDN blocked. Try different network.", "off");
+    addMsg("⚠️ Socket library didn't load (network blocked). Try another Wi-Fi/hotspot.", "system");
+    return;
+  }
 
-function connectSocket(){
   setStatus("Connecting...", "wait");
-
-  socket = io(BACKEND, { transports:["websocket","polling"], timeout: 10000 });
+  socket = io(BACKEND, { transports: ["websocket","polling"], timeout: 8000 });
 
   socket.on("connect", () => {
     setStatus("Finding stranger...", "wait");
@@ -131,6 +147,7 @@ function connectSocket(){
   socket.on("connect_error", () => {
     setStatus("Connection failed. Press New Chat to retry.", "off");
     sendBtn.disabled = true;
+    addMsg("⚠️ Connection failed. Press New Chat to retry.", "system");
   });
 }
 
@@ -139,9 +156,8 @@ function skipChat(){
   currentRoom = null;
   sendBtn.disabled = true;
 
-  // If socket not connected yet, retry waking backend
   if (!socket || socket.disconnected) {
-    wakeThenConnect();
+    startConnection();
     return;
   }
 
@@ -167,8 +183,9 @@ inputEl.addEventListener("keydown", e => {
 
 document.getElementById("nextBtn").onclick = skipChat;
 
-// Start flow
-setTimeout(wakeThenConnect, 50);
+// Start (never blocks page render)
+setStatus("Preparing...", "wait");
+setTimeout(startConnection, 100);
 </script>
 </body>
 </html>

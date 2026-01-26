@@ -14,13 +14,12 @@
         <div class="logoMark">💬</div>
 
         <div class="onlinePill">
-          👥 <span id="onlineCount">Waking server…</span>
+          👥 <span id="onlineCount">—</span> people online now
         </div>
 
         <div class="bigHeading">Start Chatting!</div>
         <p class="lead">
           Choose your gender and get matched instantly with a random stranger.
-          Anonymous, fast, and simple.
         </p>
 
         <div class="sectionLabel">
@@ -42,57 +41,9 @@
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
   <script>
-    const BACKEND = "https://chatzi-backend.onrender.com";
-    const onlineEl = document.getElementById("onlineCount");
     const textBtn = document.getElementById("textBtn");
-    let socket = null;
     let selectedGender = null;
-
-    function withTimeout(promise, ms) {
-      const controller = new AbortController();
-      const t = setTimeout(() => controller.abort(), ms);
-      return Promise.race([
-        promise(controller.signal).finally(() => clearTimeout(t)),
-        new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), ms + 50))
-      ]);
-    }
-
-    async function wakeServer() {
-      onlineEl.textContent = "Waking server…";
-      try {
-        await withTimeout((signal) =>
-          fetch(BACKEND + "/health", { signal, cache: "no-store" }),
-        8000);
-        onlineEl.textContent = "Connecting…";
-        connectSocket();
-      } catch (e) {
-        // Don’t block page; allow user to continue anyway
-        onlineEl.textContent = "Server sleeping (tap to retry)";
-        document.querySelector(".onlinePill").style.cursor = "pointer";
-        document.querySelector(".onlinePill").onclick = wakeServer;
-      }
-    }
-
-    function connectSocket() {
-      socket = io(BACKEND, { transports: ["websocket", "polling"], timeout: 8000 });
-
-      socket.on("connect", () => {
-        // online count will arrive soon
-        onlineEl.textContent = "—";
-      });
-
-      socket.on("online_count", (c) => {
-        onlineEl.textContent = c;
-      });
-
-      socket.on("connect_error", () => {
-        onlineEl.textContent = "Server busy (tap to retry)";
-        document.querySelector(".onlinePill").style.cursor = "pointer";
-        document.querySelector(".onlinePill").onclick = wakeServer;
-      });
-    }
 
     function randomName() {
       const a = ["Cool","Silent","Dark","Happy","Wild","Fast","Neon","Chill"];
@@ -107,6 +58,7 @@
         document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
         btn.classList.add("active");
         selectedGender = btn.dataset.gender;
+
         textBtn.disabled = false;
         textBtn.textContent = "💬 Start Text Chat";
       };
@@ -117,9 +69,6 @@
       const name = randomName();
       location.href = `/chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
     };
-
-    // Wake server after page paint (non-blocking)
-    setTimeout(wakeServer, 50);
   </script>
 </body>
 </html>
