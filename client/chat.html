@@ -22,7 +22,6 @@
 
     <div class="topRight">
       <span class="badge">Press <b>Esc</b> to skip</span>
-      <button class="iconBtn" id="bellBtn" title="Notifications">🔔</button>
       <button class="iconBtn" id="helpBtn" title="Safety">🛡️</button>
     </div>
   </div>
@@ -32,7 +31,7 @@
     <div class="centerInfo">
       <div class="infoCard">
         <div class="infoTitle">✨ Send messages to your stranger ✨</div>
-        Share thoughts, feelings & experiences. Be kind 🤝 • No scams 🚫 • Stay safe ✅
+        Be kind 🤝 • No personal info 🚫 • Stay safe ✅
       </div>
     </div>
 
@@ -70,7 +69,13 @@
       <div class="inputInner">
         <button class="roundBtn" id="gifBtn" title="Send a GIF">GIF</button>
         <input id="msgInput" class="msgInput" placeholder="Message..." autocomplete="off" />
-        <button id="sendBtn" class="sendBtn" disabled>Send</button>
+        <button id="sendBtn" class="sendBtn" disabled>
+          <span>Send</span>
+          <svg class="sendIcon" viewBox="0 0 24 24" fill="none">
+            <path d="M3 11.5L21 3l-8.5 18-2.2-7.1L3 11.5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M21 3L10.3 13.9" stroke="white" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
         <button id="nextBtn" class="newBtn">New Chat</button>
       </div>
     </div>
@@ -85,27 +90,37 @@
     <div class="gifGrid" id="gifGrid"></div>
   </div>
 
-  <!-- Modal overlay: Finding match -->
+  <!-- Modal overlay: Finding match / Skipping -->
   <div class="overlay" id="overlay">
     <div class="modal">
       <div class="modalTop">
-        <div>Start New Chat</div>
+        <div class="modalTopTitle">
+          <div id="modalTitle">Finding match…</div>
+          <span class="miniTag" id="modalTag">Random</span>
+        </div>
         <button class="iconBtn" id="modalClose" title="Close">✕</button>
       </div>
-      <div class="modalSub">Finding your match… please wait while we connect you.</div>
+
+      <div class="modalSub" id="modalSub">
+        Please wait while we connect you.
+      </div>
+
+      <div class="spin"></div>
 
       <div class="progressBar"><div class="progressFill"></div></div>
 
       <div class="modalBox" id="modalHint">
-        🔒 Tip: You can add filters later. For now, instant matching is enabled.
+        🔒 Tip: Stay anonymous. Don’t share phone numbers or socials.
       </div>
 
       <div class="modalActions">
-        <button class="modalPrimary" id="modalPrimary">Finding…</button>
+        <button class="modalPrimary" id="modalPrimary" disabled>Connecting…</button>
         <button class="modalGhost" id="modalCancel">Cancel</button>
       </div>
     </div>
   </div>
+
+  <div class="toast" id="toast">Copied</div>
 
 <script>
 /* ===================== Config ===================== */
@@ -132,6 +147,9 @@ const overlay = document.getElementById("overlay");
 const modalClose = document.getElementById("modalClose");
 const modalCancel = document.getElementById("modalCancel");
 const modalPrimary = document.getElementById("modalPrimary");
+const modalTitle = document.getElementById("modalTitle");
+const modalSub = document.getElementById("modalSub");
+const modalTag = document.getElementById("modalTag");
 
 /* GIF UI */
 const gifBtn = document.getElementById("gifBtn");
@@ -159,21 +177,20 @@ function showBannerLeft(show, who="Stranger"){
   leftNameEl.textContent = who;
 }
 
-function openModal(){
+function openModal(title="Finding match…", sub="Please wait while we connect you.", tag="Random"){
+  modalTitle.textContent = title;
+  modalSub.textContent = sub;
+  modalTag.textContent = tag;
   overlay.style.display = "flex";
-  modalPrimary.textContent = "Finding…";
+  modalPrimary.textContent = "Connecting…";
   modalPrimary.disabled = true;
 }
 function closeModal(){
   overlay.style.display = "none";
 }
 
-function openGif(){
-  gifPanel.style.display = "block";
-}
-function closeGif(){
-  gifPanel.style.display = "none";
-}
+function openGif(){ gifPanel.style.display = "block"; }
+function closeGif(){ gifPanel.style.display = "none"; }
 
 function isImageUrl(s){
   return /^https?:\/\/\S+\.(png|jpe?g|gif|webp)(\?\S*)?$/i.test(s.trim());
@@ -218,7 +235,6 @@ function loadSocketIoCdn(){
 }
 
 async function wakeServer(){
-  // quick wake check
   try{
     const res = await timeoutFetch(BACKEND + "/health", 12000);
     return res.ok;
@@ -227,40 +243,36 @@ async function wakeServer(){
   }
 }
 
-/* ===================== Matching UX ===================== */
-async function startNewMatch(){
+/* ===================== Matching ===================== */
+async function startNewMatch(reason="finding"){
   showBannerLeft(false);
   showTyping(false);
   messagesEl.innerHTML = "";
   currentRoom = null;
   sendBtn.disabled = true;
 
-  openModal();
+  if(reason === "skip"){
+    openModal("Skipping…", "Finding someone new for you.", "Fast");
+  } else {
+    openModal("Finding match…", "Please wait while we connect you.", "Random");
+  }
 
   const ok = await wakeServer();
   if(!ok){
     addBubble("⚠️ Server is waking up (free hosting). Try again in a few seconds.", "system");
     modalPrimary.textContent = "Try again";
     modalPrimary.disabled = false;
-    modalPrimary.onclick = () => startNewMatch();
+    modalPrimary.onclick = () => startNewMatch("finding");
     return;
   }
 
-  // ensure socket connected
   if(!socket){
     await connectSocket();
   }else if(socket.disconnected){
     socket.connect();
   }
 
-  // ask for match
   socket.emit("find_match");
-  modalPrimary.textContent = "Finding…";
-  modalPrimary.disabled = true;
-}
-
-function finishModal(){
-  closeModal();
 }
 
 /* ===================== Socket ===================== */
@@ -268,7 +280,7 @@ async function connectSocket(){
   await loadSocketIoCdn();
 
   socket = io(BACKEND, {
-    transports: ["polling"],   // stable on Render free
+    transports: ["polling"],
     upgrade: false,
     timeout: 60000
   });
@@ -284,10 +296,10 @@ async function connectSocket(){
   socket.on("matched", ({ room, partner }) => {
     currentRoom = room;
     partnerGender = partner?.gender || "Stranger";
-    finishModal();
+    closeModal();
     sendBtn.disabled = false;
 
-    addBubble("✅ Connected. Be kind. No personal info. Stay safe ✅", "system");
+    addBubble("✅ Connected. Be kind. Stay anonymous ✅", "system");
     addBubble(`You are chatting with: ${partnerGender}`, "system");
     inputEl.focus();
   });
@@ -329,6 +341,7 @@ function sendNow(textOverride=null){
 }
 
 sendBtn.onclick = () => sendNow();
+
 inputEl.addEventListener("keydown", (e) => {
   if(e.key === "Enter") sendNow();
 });
@@ -345,27 +358,26 @@ inputEl.addEventListener("input", () => {
 
 /* ESC skip */
 document.addEventListener("keydown", (e) => {
-  if(e.key === "Escape") startNewMatch();
+  if(e.key === "Escape") startNewMatch("skip");
 });
 
-/* New chat button */
-nextBtn.onclick = startNewMatch;
-bannerNewChat.onclick = startNewMatch;
+/* Buttons */
+nextBtn.onclick = () => startNewMatch("finding");
+bannerNewChat.onclick = () => startNewMatch("finding");
 
-/* Modal buttons */
+/* Modal close/cancel */
 modalClose.onclick = closeModal;
 modalCancel.onclick = closeModal;
 
-/* Conversation starter chips */
+/* Starter chips -> fill input */
 document.getElementById("starters").addEventListener("click", (e) => {
   const btn = e.target.closest(".chip");
   if(!btn) return;
-  // yapping shows as suggestions; we auto-fill (not auto-send)
-  inputEl.value = btn.textContent.replace(/^\S+\s/, ""); // remove emoji space
+  inputEl.value = btn.textContent.replace(/^\S+\s/, "");
   inputEl.focus();
 });
 
-/* ===================== GIF picker (no API key, curated) ===================== */
+/* ===================== GIF picker (curated - free, no API key) ===================== */
 const GIFS = [
   { title:"Hi", url:"https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif" },
   { title:"LOL", url:"https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif" },
@@ -402,7 +414,6 @@ gifBtn.onclick = () => {
 };
 gifClose.onclick = closeGif;
 
-// close gif if click outside
 document.addEventListener("click", (e) => {
   if(gifPanel.style.display !== "block") return;
   if(e.target.closest("#gifPanel")) return;
@@ -410,10 +421,15 @@ document.addEventListener("click", (e) => {
   closeGif();
 });
 
-/* ===================== Start initial match ===================== */
-(async () => {
+/* Safety help */
+document.getElementById("helpBtn").onclick = () => {
+  addBubble("🛡️ Safety: Don’t share phone numbers, OTPs, or personal socials. Report/block features coming soon.", "system");
+};
+
+/* ===================== Start ===================== */
+(() => {
   addBubble("Waking server… (free hosting). First match may take a bit.", "system");
-  await startNewMatch();
+  startNewMatch("finding");
 })();
 </script>
 </body>
