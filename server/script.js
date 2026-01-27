@@ -1,7 +1,15 @@
 const BACKEND_URL = "https://chatzi-backend.onrender.com";
 
+function debugOnPage(msg) {
+  const el = document.getElementById("debugBox");
+  if (el) el.textContent += msg + "\n";
+}
+
+console.log("✅ Chatzi script.js loaded");
+debugOnPage("✅ script.js loaded");
+
 const socket = io(BACKEND_URL, {
-  transports: ["websocket", "polling"], // key fix
+  transports: ["websocket", "polling"],
   reconnection: true,
   reconnectionAttempts: 10,
   reconnectionDelay: 800,
@@ -20,6 +28,7 @@ const newBtn = document.getElementById("newBtn");
 
 function setStatus(t) {
   if (statusEl) statusEl.textContent = t;
+  debugOnPage("STATUS: " + t);
 }
 
 function addLine(label, text) {
@@ -34,34 +43,41 @@ setStatus("Connecting...");
 
 socket.on("connect", () => {
   setStatus("Connected ✅ Finding stranger...");
+  debugOnPage("SOCKET CONNECTED: " + socket.id);
   socket.emit("find", { name: myName, gender: myGender });
 });
 
 socket.on("connect_error", (err) => {
   setStatus("Server not reachable (trying...)");
+  debugOnPage("connect_error: " + (err?.message || err));
   console.log("connect_error:", err?.message || err);
 });
 
-socket.on("disconnect", () => {
+socket.on("disconnect", (reason) => {
   setStatus("Disconnected (reconnecting...)");
+  debugOnPage("disconnect: " + reason);
 });
 
 socket.on("status", (s) => {
+  debugOnPage("status event: " + JSON.stringify(s));
   if (s?.state === "waiting") setStatus("Finding stranger...");
   if (s?.state === "idle") setStatus("Idle. Press New Chat.");
 });
 
 socket.on("matched", (data) => {
+  debugOnPage("matched: " + JSON.stringify(data));
   const p = data?.partner;
   setStatus(`Matched ✅ (${p?.gender || "Other"})`);
   addLine("System", `Connected with ${p?.name || "Stranger"} (${p?.gender || "Other"})`);
 });
 
 socket.on("message", (m) => {
+  debugOnPage("message: " + JSON.stringify(m));
   addLine(m.from || "Stranger", m.text || "");
 });
 
 socket.on("left", () => {
+  debugOnPage("left event received");
   setStatus("Stranger left. Press New Chat.");
   addLine("System", "Stranger left the chat.");
 });
@@ -83,12 +99,15 @@ function newChat() {
   socket.emit("skip");
   socket.emit("find", { name: myName, gender: myGender });
 }
+
 newBtn?.addEventListener("click", newChat);
 
-// ESC to skip
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") newChat();
 });
 
-// Wake backend (avoid sleep delays + show real issue if blocked)
-fetch(`${BACKEND_URL}/health`).catch(()=>{});
+// Wake backend
+fetch(`${BACKEND_URL}/health`)
+  .then((r) => r.text())
+  .then((t) => debugOnPage("health ok: " + t))
+  .catch((e) => debugOnPage("health failed: " + e));
