@@ -440,3 +440,123 @@ body { margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helve
   background:#f9fafb;
 }
 .gifItem img{ width:100%; height:140px; object-fit:cover; display:block; }
+
+/* =========================
+   START PAGE (scoped)
+   ========================= */
+.start-page {
+  margin: 0;
+  min-height: 100vh;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+  background: radial-gradient(1200px 600px at 50% 0%, #ffe7f1 0%, #fff6fa 40%, #ffffff 100%);
+  color: #111827;
+}
+
+.start-wrap{
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.start-card{
+  width: min(560px, 92vw);
+  background: rgba(255,255,255,0.75);
+  border: 1px solid rgba(229,231,235,0.9);
+  border-radius: 22px;
+  padding: 34px 26px 22px;
+  box-shadow: 0 18px 55px rgba(17,24,39,0.10);
+  backdrop-filter: blur(10px);
+  text-align: center;
+}
+
+.brand{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 90, 138, 0.10);
+  border: 1px solid rgba(255, 90, 138, 0.22);
+  margin-bottom: 14px;
+}
+
+.brand-logo{
+  width: 34px;
+  height: 34px;
+}
+
+.brand-name{
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: #111827;
+}
+
+.hero-title{
+  margin: 10px 0 6px;
+  font-size: clamp(28px, 4vw, 38px);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+.hero-sub{
+  margin: 0 0 16px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.hero-desc{
+  margin: 0 auto 18px;
+  max-width: 46ch;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.cta{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-weight: 800;
+  border-radius: 14px;
+  padding: 14px 18px;
+  width: min(420px, 92%);
+  margin: 6px auto 18px;
+  color: white;
+  background: linear-gradient(90deg, #ff5a8a, #b84bff);
+  box-shadow: 0 12px 30px rgba(184,75,255,0.25), 0 12px 30px rgba(255,90,138,0.20);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.cta:hover{
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+}
+
+.cta:active{
+  transform: translateY(0px) scale(0.99);
+}
+
+.badges{
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.badge{
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(229,231,235,0.9);
+  color: #6b7280;
+  font-weight: 700;
+}
+
+.start-foot{
+  margin-top: 18px;
+  color: #9ca3af;
+  font-weight: 700;
+  font-size: 13px;
+}

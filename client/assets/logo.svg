@@ -1,0 +1,20 @@
+<svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g" x1="28" y1="20" x2="112" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ff5a8a"/>
+      <stop offset="1" stop-color="#b84bff"/>
+    </linearGradient>
+    <filter id="s" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <!-- Bubble -->
+  <g filter="url(#s)">
+    <path d="M70 22c23.195 0 42 14.879 42 33.23 0 18.35-18.805 33.229-42 33.229-3.78 0-7.44-.39-10.92-1.11l-13.66 8.55c-2.37 1.49-5.48-.58-4.93-3.3l2.46-12.2C34.8 73.55 28 64.85 28 55.23 28 36.879 46.805 22 70 22Z" fill="url(#g)"/>
+  </g>
+
+  <!-- Lips -->
+  <path d="M46.5 60.2c7.8 0 12-5.4 23.5-5.4s15.7 5.4 23.5 5.4c7.6 0 11.4-2.2 11.4-2.2s-2.2 11.8-18.4 15.4c-4.4 1-10 1.4-16.5 1.4s-12.1-.4-16.5-1.4C37.3 69.8 35.1 58 35.1 58s3.8 2.2 11.4 2.2Z" fill="#ffffff" opacity="0.95"/>
+  <path d="M52.2 60.6c5.6-2.8 10.4-4.4 17.8-4.4s12.2 1.6 17.8 4.4c-1.6 2.6-6.8 6.6-17.8 6.6s-16.2-4-17.8-6.6Z" fill="#ff3f79" opacity="0.85"/>
+</svg>
