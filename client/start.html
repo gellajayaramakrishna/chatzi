@@ -6,26 +6,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="homePage">
 
-<div class="homeCard">
-  <h1>💬 Chat with Strangers</h1>
-  <p class="subtitle">Anonymous • Instant • No signup</p>
+<body style="margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#fff1f2;">
+  <div style="width:min(520px, 92vw); background:white; border-radius:18px; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.08); text-align:center;">
 
-  <div class="onlineBox">
-    <span id="onlineCount">–</span> people online now
+    <div style="font-size:46px; line-height:1;">💬</div>
+    <h1 style="margin:10px 0 6px; font-size:40px;">Chat with Strangers</h1>
+    <p style="margin:0 0 14px; color:#374151; font-size:18px;">Anonymous • Instant • No signup</p>
+
+    <div style="margin:14px auto 22px; padding:12px 14px; border-radius:14px; background:#fff1f2; color:#ec4899; font-weight:700; display:inline-flex; gap:10px; align-items:center;">
+      <span style="font-size:20px;">👥</span>
+      <span><span id="onlineCount">–</span> people online now</span>
+    </div>
+
+    <div style="text-align:left; margin:0 auto; width:min(420px, 92%);">
+      <div style="font-weight:700; color:#111827; margin-bottom:10px;">Select your gender <span style="color:#ec4899;">*</span></div>
+
+      <div class="genderRow" style="display:flex; gap:12px;">
+        <button class="genderBtn" data-gender="Male" style="flex:1; padding:14px 12px; border-radius:14px; border:2px solid #e5e7eb; background:white; cursor:pointer; font-weight:700;">
+          ♂ Male
+        </button>
+        <button class="genderBtn" data-gender="Female" style="flex:1; padding:14px 12px; border-radius:14px; border:2px solid #e5e7eb; background:white; cursor:pointer; font-weight:700;">
+          ♀ Female
+        </button>
+        <button class="genderBtn" data-gender="Other" style="flex:1; padding:14px 12px; border-radius:14px; border:2px solid #e5e7eb; background:white; cursor:pointer; font-weight:700;">
+          ⚧ Other
+        </button>
+      </div>
+
+      <button id="startBtn" disabled
+        style="margin-top:16px; width:100%; padding:16px 14px; border-radius:14px; border:none; cursor:pointer;
+               background:linear-gradient(90deg,#ec4899,#a855f7); color:white; font-weight:800; font-size:16px; opacity:.5;">
+        Start Text Chat
+      </button>
+
+      <div style="margin-top:10px; color:#6b7280; font-size:13px; text-align:center;">
+        Tip: Press <b>Esc</b> to skip once you’re inside chat.
+      </div>
+    </div>
   </div>
-
-  <div class="genderRow">
-    <button class="genderBtn" data-gender="Male">♂ Male</button>
-    <button class="genderBtn" data-gender="Female">♀ Female</button>
-    <button class="genderBtn" data-gender="Other">⚧ Other</button>
-  </div>
-
-  <button id="startBtn" class="startBtn" disabled>
-    Start Text Chat
-  </button>
-</div>
 
 <script>
 const BACKEND = "https://chatzi-backend.onrender.com";
@@ -36,27 +55,33 @@ const s = document.createElement("script");
 s.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
 s.onload = () => {
   const socket = io(BACKEND, { transports:["polling"], upgrade:false });
-
-  socket.on("online_count", count => {
+  socket.on("online_count", (count) => {
     document.getElementById("onlineCount").textContent = count;
   });
 };
 document.head.appendChild(s);
 
 // gender select
+const startBtn = document.getElementById("startBtn");
 document.querySelectorAll(".genderBtn").forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+    document.querySelectorAll(".genderBtn").forEach(b => {
+      b.style.borderColor = "#e5e7eb";
+      b.style.background = "white";
+    });
+    btn.style.borderColor = "#ec4899";
+    btn.style.background = "#fff1f2";
+
     selectedGender = btn.dataset.gender;
-    document.getElementById("startBtn").disabled = false;
+    startBtn.disabled = false;
+    startBtn.style.opacity = "1";
   };
 });
 
 // start chat
-document.getElementById("startBtn").onclick = () => {
+startBtn.onclick = () => {
   const name = "User" + Math.floor(Math.random()*9000);
-  location.href = `chat.html?name=${name}&gender=${selectedGender}`;
+  location.href = `chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
 };
 </script>
 
