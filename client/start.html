@@ -1,74 +1,64 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chatzi - Start Chatting</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Chatzi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="style.css">
 </head>
+<body class="homePage">
 
-<body>
-  <div class="container centerWrap">
-    <div class="card startCard">
-      <div class="startInner">
-        <div class="logoMark">💬</div>
+<div class="homeCard">
+  <h1>💬 Chat with Strangers</h1>
+  <p class="subtitle">Anonymous • Instant • No signup</p>
 
-        <div class="onlinePill">
-          👥 <span id="onlineCount">—</span> people online now
-        </div>
-
-        <div class="bigHeading">Start Chatting!</div>
-        <p class="lead">
-          Choose your gender and get matched instantly with a random stranger.
-        </p>
-
-        <div class="sectionLabel">
-          Select your gender <span class="reqStar">*</span>
-        </div>
-
-        <div class="genderGrid">
-          <button class="genderBtn" data-gender="Male" type="button">👨 Male</button>
-          <button class="genderBtn" data-gender="Female" type="button">👩 Female</button>
-          <button class="genderBtn" data-gender="Other" type="button">🧑 Other</button>
-        </div>
-
-        <button id="textBtn" class="btnPrimary bigCTA" disabled>
-          💬 Select gender to continue
-        </button>
-
-        <div class="smallNote">Random matching • No signup • 18+</div>
-      </div>
-    </div>
+  <div class="onlineBox">
+    <span id="onlineCount">–</span> people online now
   </div>
 
-  <script>
-    const textBtn = document.getElementById("textBtn");
-    let selectedGender = null;
+  <div class="genderRow">
+    <button class="genderBtn" data-gender="Male">♂ Male</button>
+    <button class="genderBtn" data-gender="Female">♀ Female</button>
+    <button class="genderBtn" data-gender="Other">⚧ Other</button>
+  </div>
 
-    function randomName() {
-      const a = ["Cool","Silent","Dark","Happy","Wild","Fast","Neon","Chill"];
-      const n = ["Tiger","Fox","Wolf","Eagle","Cat","Bear","Hawk"];
-      return a[Math.floor(Math.random()*a.length)] +
-             n[Math.floor(Math.random()*n.length)] +
-             Math.floor(Math.random()*100);
-    }
+  <button id="startBtn" class="startBtn" disabled>
+    Start Text Chat
+  </button>
+</div>
 
-    document.querySelectorAll(".genderBtn").forEach(btn => {
-      btn.onclick = () => {
-        document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        selectedGender = btn.dataset.gender;
+<script>
+const BACKEND = "https://chatzi-backend.onrender.com";
+let selectedGender = null;
 
-        textBtn.disabled = false;
-        textBtn.textContent = "💬 Start Text Chat";
-      };
-    });
+// load socket.io
+const s = document.createElement("script");
+s.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
+s.onload = () => {
+  const socket = io(BACKEND, { transports:["polling"], upgrade:false });
 
-    textBtn.onclick = () => {
-      if (!selectedGender) return;
-      const name = randomName();
-      location.href = `/chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
-    };
-  </script>
+  socket.on("online_count", count => {
+    document.getElementById("onlineCount").textContent = count;
+  });
+};
+document.head.appendChild(s);
+
+// gender select
+document.querySelectorAll(".genderBtn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    selectedGender = btn.dataset.gender;
+    document.getElementById("startBtn").disabled = false;
+  };
+});
+
+// start chat
+document.getElementById("startBtn").onclick = () => {
+  const name = "User" + Math.floor(Math.random()*9000);
+  location.href = `chat.html?name=${name}&gender=${selectedGender}`;
+};
+</script>
+
 </body>
 </html>

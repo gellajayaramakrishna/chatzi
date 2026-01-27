@@ -496,3 +496,25 @@ html, body{
   font-size: 12px;
   opacity: 0.6;
 }
+
+.onlineBox {
+  margin: 12px 0;
+  font-weight: 600;
+  color: #ec4899;
+}
+
+.genderBtn.active {
+  border-color: #ec4899;
+  background: #fdf2f8;
+}
+
+.startBtn {
+  margin-top: 12px;
+  background: linear-gradient(90deg,#ec4899,#a855f7);
+  color: white;
+  border: none;
+}
+
+.startBtn:disabled {
+  opacity: 0.5;
+}
