@@ -1,89 +1,58 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Chatzi</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatzi — Start</title>
+  <link rel="stylesheet" href="./style.css"/>
 </head>
-
-<body style="margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#fff1f2;">
-  <div style="width:min(520px, 92vw); background:white; border-radius:18px; padding:28px 24px; box-shadow:0 20px 60px rgba(0,0,0,0.08); text-align:center;">
-
-    <div style="font-size:46px; line-height:1;">💬</div>
-    <h1 style="margin:10px 0 6px; font-size:40px;">Chat with Strangers</h1>
-    <p style="margin:0 0 14px; color:#374151; font-size:18px;">Anonymous • Instant • No signup</p>
-
-    <div style="margin:14px auto 22px; padding:12px 14px; border-radius:14px; background:#fff1f2; color:#ec4899; font-weight:700; display:inline-flex; gap:10px; align-items:center;">
-      <span style="font-size:20px;">👥</span>
-      <span><span id="onlineCount">–</span> people online now</span>
-    </div>
-
-    <div style="text-align:left; margin:0 auto; width:min(420px, 92%);">
-      <div style="font-weight:700; color:#111827; margin-bottom:10px;">Select your gender <span style="color:#ec4899;">*</span></div>
-
-      <div class="genderRow" style="display:flex; gap:12px;">
-        <button class="genderBtn" data-gender="Male" style="flex:1; padding:14px 12px; border-radius:14px; border:2px solid #e5e7eb; background:white; cursor:pointer; font-weight:700;">
-          ♂ Male
-        </button>
-        <button class="genderBtn" data-gender="Female" style="flex:1; padding:14px 12px; border-radius:14px; border:2px solid #e5e7eb; background:white; cursor:pointer; font-weight:700;">
-          ♀ Female
-        </button>
-        <button class="genderBtn" data-gender="Other" style="flex:1; padding:14px 12px; border-radius:14px; border:2px solid #e5e7eb; background:white; cursor:pointer; font-weight:700;">
-          ⚧ Other
-        </button>
+<body class="start2-page">
+  <main class="start2-wrap">
+    <section class="start2-card">
+      <div class="topRow">
+        <a class="backLink" href="./index.html">← Back</a>
+        <div class="miniBrand">Chatzi</div>
       </div>
 
-      <button id="startBtn" disabled
-        style="margin-top:16px; width:100%; padding:16px 14px; border-radius:14px; border:none; cursor:pointer;
-               background:linear-gradient(90deg,#ec4899,#a855f7); color:white; font-weight:800; font-size:16px; opacity:.5;">
-        Start Text Chat
-      </button>
+      <h2 class="start2-title">Start chatting</h2>
+      <p class="start2-sub">Pick your gender and enter. (Name is random)</p>
 
-      <div style="margin-top:10px; color:#6b7280; font-size:13px; text-align:center;">
-        Tip: Press <b>Esc</b> to skip once you’re inside chat.
+      <div class="pickRow">
+        <button class="pickBtn" data-g="Male">♂ Male</button>
+        <button class="pickBtn" data-g="Female">♀ Female</button>
+        <button class="pickBtn" data-g="Other">⚧ Other</button>
       </div>
-    </div>
-  </div>
 
-<script>
-const BACKEND = "https://chatzi-backend.onrender.com";
-let selectedGender = null;
+      <button id="goBtn" class="cta2" disabled>Start</button>
 
-// load socket.io
-const s = document.createElement("script");
-s.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
-s.onload = () => {
-  const socket = io(BACKEND, { transports:["polling"], upgrade:false });
-  socket.on("online_count", (count) => {
-    document.getElementById("onlineCount").textContent = count;
-  });
-};
-document.head.appendChild(s);
+      <p class="tiny">Tip: Press <b>Esc</b> to skip anytime.</p>
+    </section>
+  </main>
 
-// gender select
-const startBtn = document.getElementById("startBtn");
-document.querySelectorAll(".genderBtn").forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll(".genderBtn").forEach(b => {
-      b.style.borderColor = "#e5e7eb";
-      b.style.background = "white";
+  <script>
+    const btns = document.querySelectorAll(".pickBtn");
+    const go = document.getElementById("goBtn");
+    let gender = null;
+
+    btns.forEach(b => {
+      b.addEventListener("click", () => {
+        btns.forEach(x => x.classList.remove("active"));
+        b.classList.add("active");
+        gender = b.dataset.g;
+        go.disabled = false;
+      });
     });
-    btn.style.borderColor = "#ec4899";
-    btn.style.background = "#fff1f2";
 
-    selectedGender = btn.dataset.gender;
-    startBtn.disabled = false;
-    startBtn.style.opacity = "1";
-  };
-});
+    function randName(){
+      const a = ["cool","soft","wild","quiet","brave","cute","fast","shy","bold","nice"];
+      const b = ["tiger","fox","panda","eagle","wolf","otter","koala","lion","cat","hawk"];
+      return a[Math.floor(Math.random()*a.length)] + "_" + b[Math.floor(Math.random()*b.length)] + "_" + Math.floor(1000+Math.random()*9000);
+    }
 
-// start chat
-startBtn.onclick = () => {
-  const name = "User" + Math.floor(Math.random()*9000);
-  location.href = `chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
-};
-</script>
-
+    go.addEventListener("click", () => {
+      const name = randName();
+      location.href = `./chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(gender)}`;
+    });
+  </script>
 </body>
 </html>

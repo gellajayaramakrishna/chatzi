@@ -1,436 +1,61 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chatzi - Chat</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatzi — Chat</title>
+  <link rel="stylesheet" href="./style.css"/>
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
 </head>
 
 <body class="fullChatPage">
-  <!-- Top bar -->
+
+  <!-- TOP BAR -->
   <div class="topbar">
     <div class="topLeft">
       <div class="logoDot">💬</div>
-      <div>Chatzi</div>
+      <div class="logoText">Chatzi</div>
     </div>
 
     <div class="handleRow">
-      <span id="handle">@anonymous</span>
-      <span class="greenDot" title="Online"></span>
+      <span id="handle">@user</span>
+      <span class="greenDot"></span>
     </div>
 
     <div class="topRight">
       <span class="badge">Press <b>Esc</b> to skip</span>
-      <button class="iconBtn" id="helpBtn" title="Safety">🛡️</button>
     </div>
   </div>
 
+  <!-- CHAT AREA -->
   <div class="chatWrap">
-    <!-- Center info -->
     <div class="centerInfo">
-      <div class="infoCard">
-        <div class="infoTitle">✨ Send messages to your stranger ✨</div>
-        Be kind 🤝 • No personal info 🚫 • Stay safe ✅
-      </div>
+      ✨ Send messages to your stranger ✨<br />
+      <small>Be kind 🤝 • No personal info 🚫 • Stay safe ✅</small>
     </div>
 
-    <!-- Banner for "left the chat" -->
-    <div class="banner" id="leftBanner">
-      <div>
-        <span id="leftName">Stranger</span> left the chat
-        <div class="small">Don’t wait! Find someone better right now.</div>
-      </div>
-      <button class="pill" id="bannerNewChat">Find Match Now</button>
-    </div>
+    <div id="messages"></div>
 
-    <!-- Messages -->
-    <div id="messages" class="chatArea"></div>
-
-    <!-- Typing -->
-    <div class="typingRow" id="typingRow" style="display:none;">
-      <span class="typingDot"></span><span class="typingDot"></span><span class="typingDot"></span>
-      <span id="typingText">Stranger is typing…</span>
-    </div>
-
-    <!-- Starters -->
-    <div class="startersWrap">
-      <div class="starters" id="starters">
-        <button class="chip">🌍 Where are you from?</button>
-        <button class="chip">🍿 What brings you here today?</button>
-        <button class="chip">👀 What are you looking for?</button>
-        <button class="chip">🎵 What music are you into?</button>
-        <button class="chip">✨ Tell me something cool about you</button>
-      </div>
-    </div>
-
-    <!-- Input bar -->
-    <div class="inputBar">
-      <div class="inputInner">
-        <button class="roundBtn" id="gifBtn" title="Send a GIF">GIF</button>
-        <input id="msgInput" class="msgInput" placeholder="Message..." autocomplete="off" />
-        <button id="sendBtn" class="sendBtn" disabled>
-          <span>Send</span>
-          <svg class="sendIcon" viewBox="0 0 24 24" fill="none">
-            <path d="M3 11.5L21 3l-8.5 18-2.2-7.1L3 11.5Z" stroke="white" stroke-width="2" stroke-linejoin="round"/>
-            <path d="M21 3L10.3 13.9" stroke="white" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-        <button id="nextBtn" class="newBtn">New Chat</button>
-      </div>
+    <div id="typingIndicator" class="typing" style="display:none;">
+      Stranger is typing<span class="dots">...</span>
     </div>
   </div>
 
-  <!-- GIF picker -->
-  <div class="gifPanel" id="gifPanel">
-    <div class="gifHeader">
-      <span>Pick a GIF</span>
-      <button class="iconBtn" id="gifClose" title="Close">✕</button>
-    </div>
-    <div class="gifGrid" id="gifGrid"></div>
+  <!-- SUGGESTIONS -->
+  <div class="suggestions">
+    <button>🌍 Where are you from?</button>
+    <button>🔥 What brings you here?</button>
+    <button>🎧 What music are you into?</button>
+    <button>💬 Tell me something cool</button>
   </div>
 
-  <!-- Modal overlay: Finding match / Skipping -->
-  <div class="overlay" id="overlay">
-    <div class="modal">
-      <div class="modalTop">
-        <div class="modalTopTitle">
-          <div id="modalTitle">Finding match…</div>
-          <span class="miniTag" id="modalTag">Random</span>
-        </div>
-        <button class="iconBtn" id="modalClose" title="Close">✕</button>
-      </div>
-
-      <div class="modalSub" id="modalSub">
-        Please wait while we connect you.
-      </div>
-
-      <div class="spin"></div>
-
-      <div class="progressBar"><div class="progressFill"></div></div>
-
-      <div class="modalBox" id="modalHint">
-        🔒 Tip: Stay anonymous. Don’t share phone numbers or socials.
-      </div>
-
-      <div class="modalActions">
-        <button class="modalPrimary" id="modalPrimary" disabled>Connecting…</button>
-        <button class="modalGhost" id="modalCancel">Cancel</button>
-      </div>
-    </div>
+  <!-- INPUT BAR -->
+  <div class="inputBar">
+    <button class="gifBtn">GIF</button>
+    <input id="messageInput" placeholder="Message..." />
+    <button id="sendBtn">Send ➤</button>
+    <button id="newChatBtn">New Chat</button>
   </div>
 
-  <div class="toast" id="toast">Copied</div>
-
-<script>
-/* ===================== Config ===================== */
-const BACKEND = "https://chatzi-backend.onrender.com";
-
-/* ===================== Params ===================== */
-const params = new URLSearchParams(window.location.search);
-const myName = params.get("name") || ("User" + Math.floor(Math.random()*9000));
-const myGender = params.get("gender") || "Other";
-
-/* ===================== UI refs ===================== */
-const handleEl = document.getElementById("handle");
-const messagesEl = document.getElementById("messages");
-const inputEl = document.getElementById("msgInput");
-const sendBtn = document.getElementById("sendBtn");
-const nextBtn = document.getElementById("nextBtn");
-
-const typingRow = document.getElementById("typingRow");
-const leftBanner = document.getElementById("leftBanner");
-const leftNameEl = document.getElementById("leftName");
-const bannerNewChat = document.getElementById("bannerNewChat");
-
-const overlay = document.getElementById("overlay");
-const modalClose = document.getElementById("modalClose");
-const modalCancel = document.getElementById("modalCancel");
-const modalPrimary = document.getElementById("modalPrimary");
-const modalTitle = document.getElementById("modalTitle");
-const modalSub = document.getElementById("modalSub");
-const modalTag = document.getElementById("modalTag");
-
-/* GIF UI */
-const gifBtn = document.getElementById("gifBtn");
-const gifPanel = document.getElementById("gifPanel");
-const gifClose = document.getElementById("gifClose");
-const gifGrid = document.getElementById("gifGrid");
-
-/* ===================== State ===================== */
-let socket = null;
-let currentRoom = null;
-let partnerGender = null;
-let typingTimeout = null;
-let iAmTyping = false;
-
-/* ===================== Helpers ===================== */
-handleEl.textContent = "@"+myName.toLowerCase().replace(/[^a-z0-9_]/g,"_");
-
-function showTyping(show){
-  typingRow.style.display = show ? "flex" : "none";
-  if(show) messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-function showBannerLeft(show, who="Stranger"){
-  leftBanner.style.display = show ? "flex" : "none";
-  leftNameEl.textContent = who;
-}
-
-function openModal(title="Finding match…", sub="Please wait while we connect you.", tag="Random"){
-  modalTitle.textContent = title;
-  modalSub.textContent = sub;
-  modalTag.textContent = tag;
-  overlay.style.display = "flex";
-  modalPrimary.textContent = "Connecting…";
-  modalPrimary.disabled = true;
-}
-function closeModal(){
-  overlay.style.display = "none";
-}
-
-function openGif(){ gifPanel.style.display = "block"; }
-function closeGif(){ gifPanel.style.display = "none"; }
-
-function isImageUrl(s){
-  return /^https?:\/\/\S+\.(png|jpe?g|gif|webp)(\?\S*)?$/i.test(s.trim());
-}
-
-function addBubble(text, who="system"){
-  const row = document.createElement("div");
-  row.className = "msgRow " + who;
-
-  const bubble = document.createElement("div");
-  bubble.className = "bubble";
-
-  if(isImageUrl(text)){
-    const img = document.createElement("img");
-    img.src = text.trim();
-    img.alt = "media";
-    bubble.appendChild(img);
-  }else{
-    bubble.textContent = text;
-  }
-
-  row.appendChild(bubble);
-  messagesEl.appendChild(row);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-function timeoutFetch(url, ms){
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), ms);
-  return fetch(url, { signal: controller.signal, cache: "no-store" })
-    .finally(() => clearTimeout(t));
-}
-
-function loadSocketIoCdn(){
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
-    s.onload = resolve;
-    s.onerror = reject;
-    document.head.appendChild(s);
-  });
-}
-
-async function wakeServer(){
-  try{
-    const res = await timeoutFetch(BACKEND + "/health", 12000);
-    return res.ok;
-  }catch{
-    return false;
-  }
-}
-
-/* ===================== Matching ===================== */
-async function startNewMatch(reason="finding"){
-  showBannerLeft(false);
-  showTyping(false);
-  messagesEl.innerHTML = "";
-  currentRoom = null;
-  sendBtn.disabled = true;
-
-  if(reason === "skip"){
-    openModal("Skipping…", "Finding someone new for you.", "Fast");
-  } else {
-    openModal("Finding match…", "Please wait while we connect you.", "Random");
-  }
-
-  const ok = await wakeServer();
-  if(!ok){
-    addBubble("⚠️ Server is waking up (free hosting). Try again in a few seconds.", "system");
-    modalPrimary.textContent = "Try again";
-    modalPrimary.disabled = false;
-    modalPrimary.onclick = () => startNewMatch("finding");
-    return;
-  }
-
-  if(!socket){
-    await connectSocket();
-  }else if(socket.disconnected){
-    socket.connect();
-  }
-
-  socket.emit("find_match");
-}
-
-/* ===================== Socket ===================== */
-async function connectSocket(){
-  await loadSocketIoCdn();
-
-  socket = io(BACKEND, {
-    transports: ["polling"],
-    upgrade: false,
-    timeout: 60000
-  });
-
-  socket.on("connect", () => {
-    socket.emit("register_profile", { name: myName, gender: myGender });
-  });
-
-  socket.on("waiting", () => {
-    // keep modal open while waiting
-  });
-
-  socket.on("matched", ({ room, partner }) => {
-    currentRoom = room;
-    partnerGender = partner?.gender || "Stranger";
-    closeModal();
-    sendBtn.disabled = false;
-
-    addBubble("✅ Connected. Be kind. Stay anonymous ✅", "system");
-    addBubble(`You are chatting with: ${partnerGender}`, "system");
-    inputEl.focus();
-  });
-
-  socket.on("receive_message", (msg) => {
-    showTyping(false);
-    addBubble(msg, "them");
-  });
-
-  socket.on("partner_left", () => {
-    showTyping(false);
-    sendBtn.disabled = true;
-    showBannerLeft(true, partnerGender || "Stranger");
-    addBubble("⚠️ Stranger left the chat.", "system");
-  });
-
-  socket.on("typing", () => {
-    showTyping(true);
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => showTyping(false), 1200);
-  });
-
-  socket.on("connect_error", () => {
-    showTyping(false);
-    addBubble("⚠️ Connection problem. Press New Chat to retry.", "system");
-  });
-}
-
-/* ===================== Sending ===================== */
-function sendNow(textOverride=null){
-  const msg = (textOverride ?? inputEl.value).trim();
-  if(!msg || !currentRoom || !socket || socket.disconnected) return;
-
-  addBubble(msg, "me");
-  socket.emit("send_message", { room: currentRoom, message: msg });
-
-  inputEl.value = "";
-  iAmTyping = false;
-}
-
-sendBtn.onclick = () => sendNow();
-
-inputEl.addEventListener("keydown", (e) => {
-  if(e.key === "Enter") sendNow();
-});
-
-inputEl.addEventListener("input", () => {
-  if(!socket || socket.disconnected || !currentRoom) return;
-
-  if(!iAmTyping){
-    iAmTyping = true;
-    socket.emit("typing", { room: currentRoom });
-    setTimeout(() => { iAmTyping = false; }, 700);
-  }
-});
-
-/* ESC skip */
-document.addEventListener("keydown", (e) => {
-  if(e.key === "Escape") startNewMatch("skip");
-});
-
-/* Buttons */
-nextBtn.onclick = () => startNewMatch("finding");
-bannerNewChat.onclick = () => startNewMatch("finding");
-
-/* Modal close/cancel */
-modalClose.onclick = closeModal;
-modalCancel.onclick = closeModal;
-
-/* Starter chips -> fill input */
-document.getElementById("starters").addEventListener("click", (e) => {
-  const btn = e.target.closest(".chip");
-  if(!btn) return;
-  inputEl.value = btn.textContent.replace(/^\S+\s/, "");
-  inputEl.focus();
-});
-
-/* ===================== GIF picker (curated - free, no API key) ===================== */
-const GIFS = [
-  { title:"Hi", url:"https://media.giphy.com/media/ASd0Ukj0y3qMM/giphy.gif" },
-  { title:"LOL", url:"https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif" },
-  { title:"Wow", url:"https://media.giphy.com/media/l3q2K5jinAlChoCLS/giphy.gif" },
-  { title:"Nice", url:"https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" },
-  { title:"Ok", url:"https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif" },
-  { title:"Bye", url:"https://media.giphy.com/media/5xtDarEgBDjEoWo6VRS/giphy.gif" },
-  { title:"Cute", url:"https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif" },
-  { title:"Dance", url:"https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif" },
-];
-
-function renderGifs(){
-  gifGrid.innerHTML = "";
-  GIFS.forEach(g => {
-    const card = document.createElement("div");
-    card.className = "gifItem";
-    card.title = g.title;
-    const img = document.createElement("img");
-    img.src = g.url;
-    img.alt = g.title;
-    card.appendChild(img);
-    card.onclick = () => {
-      closeGif();
-      sendNow(g.url);
-    };
-    gifGrid.appendChild(card);
-  });
-}
-renderGifs();
-
-gifBtn.onclick = () => {
-  if(gifPanel.style.display === "block") closeGif();
-  else openGif();
-};
-gifClose.onclick = closeGif;
-
-document.addEventListener("click", (e) => {
-  if(gifPanel.style.display !== "block") return;
-  if(e.target.closest("#gifPanel")) return;
-  if(e.target.closest("#gifBtn")) return;
-  closeGif();
-});
-
-/* Safety help */
-document.getElementById("helpBtn").onclick = () => {
-  addBubble("🛡️ Safety: Don’t share phone numbers, OTPs, or personal socials. Report/block features coming soon.", "system");
-};
-
-/* ===================== Start ===================== */
-(() => {
-  addBubble("Waking server… (free hosting). First match may take a bit.", "system");
-  startNewMatch("finding");
-})();
-</script>
 </body>
 </html>
