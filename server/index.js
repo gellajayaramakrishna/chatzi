@@ -6,109 +6,110 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
-function isAllowedOrigin(origin) {
-  if (!origin) return true;
-  try {
-    const { hostname } = new URL(origin);
-    return (
-      hostname === "chatzi.vercel.app" ||
-      hostname.endsWith(".vercel.app") ||
-      hostname === "chatzi.me" ||
-      hostname.endsWith(".chatzi.me") ||
-      hostname === "localhost" ||
-      hostname === "127.0.0.1"
-    );
-  } catch {
-    return false;
-  }
-}
+const ALLOWED_ORIGINS = [
+  "https://chatzi.me",
+  "https://www.chatzi.me",
+  "https://chatzi.vercel.app",
+  "http://localhost:3000",
+];
 
-app.use(
-  cors({
-    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
-    credentials: true,
-  })
-);
+// Express CORS (for /health etc.)
+app.use(cors({
+  origin: function (origin, cb) {
+    // allow non-browser tools (curl/postman) with no origin
+    if (!origin) return cb(null, true);
+    if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+    return cb(new Error("CORS blocked: " + origin));
+  },
+  methods: ["GET", "POST"],
+}));
 
-app.get("/", (req, res) => res.send("Chatzi backend is running ✅"));
+app.get("/", (req, res) => res.send("Chatzi backend running ✅"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
 const io = new Server(server, {
   cors: {
-    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
+    origin: ALLOWED_ORIGINS,
     methods: ["GET", "POST"],
-    credentials: true,
   },
-  transports: ["polling"],
+  transports: ["websocket", "polling"], // important: allow fallback
 });
 
-let waitingUser = null;
-const profiles = new Map();
-const lastMsgTime = new Map();
-
-function broadcastOnlineCount() {
-  io.emit("online_count", io.engine.clientsCount);
-}
+let waiting = []; // simple queue
 
 io.on("connection", (socket) => {
-  broadcastOnlineCount();
+  socket.on("find", ({ name, gender }) => {
+    socket.data.name = name || "Anonymous";
+    socket.data.gender = gender || "Other";
 
-  socket.on("register_profile", ({ name, gender }) => {
-    profiles.set(socket.id, {
-      name: name || "Anonymous",
-      gender: gender || "Other",
+    // remove from queue if already there
+    waiting = waiting.filter((s) => s.id !== socket.id);
+
+    // find a partner
+    const partner = waiting.shift();
+
+    if (!partner) {
+      waiting.push(socket);
+      socket.emit("status", { state: "waiting" });
+      return;
+    }
+
+    // pair them
+    socket.data.partnerId = partner.id;
+    partner.data.partnerId = socket.id;
+
+    socket.emit("matched", {
+      partner: {
+        name: partner.data.name,
+        gender: partner.data.gender,
+      },
+    });
+
+    partner.emit("matched", {
+      partner: {
+        name: socket.data.name,
+        gender: socket.data.gender,
+      },
     });
   });
 
-  socket.on("find_match", () => {
-    if (!profiles.has(socket.id)) return socket.emit("need_profile");
+  socket.on("message", (text) => {
+    const pid = socket.data.partnerId;
+    if (pid) io.to(pid).emit("message", { from: "Stranger", text });
+  });
 
-    if (waitingUser && waitingUser.id !== socket.id) {
-      const room = `room-${waitingUser.id}-${socket.id}`;
-      const p1 = profiles.get(waitingUser.id);
-      const p2 = profiles.get(socket.id);
+  socket.on("skip", () => {
+    const pid = socket.data.partnerId;
 
-      waitingUser.join(room);
-      socket.join(room);
-
-      waitingUser.emit("matched", { room, partner: { gender: p2.gender } });
-      socket.emit("matched", { room, partner: { gender: p1.gender } });
-
-      waitingUser.currentRoom = room;
-      socket.currentRoom = room;
-
-      waitingUser = null;
-    } else {
-      waitingUser = socket;
-      socket.emit("waiting");
+    // tell partner you left
+    if (pid) {
+      io.to(pid).emit("left");
+      const pSocket = io.sockets.sockets.get(pid);
+      if (pSocket) pSocket.data.partnerId = null;
     }
-  });
 
-  socket.on("send_message", ({ room, message }) => {
-    if (!room || !message) return;
+    socket.data.partnerId = null;
 
-    const now = Date.now();
-    const last = lastMsgTime.get(socket.id) || 0;
-    if (now - last < 400) return;
+    // remove from waiting
+    waiting = waiting.filter((s) => s.id !== socket.id);
 
-    lastMsgTime.set(socket.id, now);
-    socket.to(room).emit("receive_message", message);
-  });
-
-  // ✅ typing event
-  socket.on("typing", ({ room }) => {
-    if (!room) return;
-    socket.to(room).emit("typing");
+    socket.emit("status", { state: "idle" });
   });
 
   socket.on("disconnect", () => {
-    broadcastOnlineCount();
-    if (waitingUser && waitingUser.id === socket.id) waitingUser = null;
-    if (socket.currentRoom) socket.to(socket.currentRoom).emit("partner_left");
-    profiles.delete(socket.id);
-    lastMsgTime.delete(socket.id);
+    const pid = socket.data.partnerId;
+
+    // remove from waiting
+    waiting = waiting.filter((s) => s.id !== socket.id);
+
+    // notify partner
+    if (pid) {
+      io.to(pid).emit("left");
+      const pSocket = io.sockets.sockets.get(pid);
+      if (pSocket) pSocket.data.partnerId = null;
+    }
   });
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log("Chatzi backend on port", PORT));
+server.listen(PORT, () => console.log("Chatzi backend running on port", PORT));
