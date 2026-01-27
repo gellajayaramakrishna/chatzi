@@ -32,8 +32,13 @@
 
       <div id="messages" class="chatArea"></div>
 
+      <div class="typingRow" id="typingRow" style="display:none;">
+        <span class="typingDot"></span><span class="typingDot"></span><span class="typingDot"></span>
+        <span class="typingText" id="typingText">Stranger is typing…</span>
+      </div>
+
       <div class="footer">
-        <input id="msgInput" class="input" placeholder="Type a message..." />
+        <input id="msgInput" class="input" placeholder="Type a message..." autocomplete="off" />
         <button id="sendBtn" class="btnPrimary" disabled>Send</button>
         <button id="nextBtn" class="btn">New Chat</button>
       </div>
@@ -52,12 +57,17 @@ document.getElementById("myGender").textContent = `(${myGender})`;
 
 let socket = null;
 let currentRoom = null;
+let typingTimeout = null;
+let iAmTyping = false;
 
 const statusEl = document.getElementById("status");
 const dotEl = document.getElementById("dot");
 const messagesEl = document.getElementById("messages");
 const inputEl = document.getElementById("msgInput");
 const sendBtn = document.getElementById("sendBtn");
+
+const typingRow = document.getElementById("typingRow");
+const typingText = document.getElementById("typingText");
 
 function setStatus(text, mode){
   statusEl.textContent = text;
@@ -73,6 +83,11 @@ function addMsg(text, type="system"){
   wrap.appendChild(bubble);
   messagesEl.appendChild(wrap);
   messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+function showTyping(show){
+  typingRow.style.display = show ? "flex" : "none";
+  if(show) messagesEl.scrollTop = messagesEl.scrollHeight;
 }
 
 function timeoutFetch(url, ms){
@@ -114,11 +129,12 @@ async function wakeServerWithRetry(){
 
 async function startConnection(){
   setStatus("Preparing…", "wait");
+  showTyping(false);
 
   const ok = await wakeServerWithRetry();
   if (!ok) {
     setStatus("Server not responding. Press New Chat.", "off");
-    addMsg("⚠️ Backend still not responding after 90s. Press New Chat to retry.");
+    addMsg("⚠️ Backend still not responding. Press New Chat to retry.");
     return;
   }
 
@@ -133,9 +149,10 @@ async function startConnection(){
 
   setStatus("Connecting…", "wait");
 
-  // ✅ FORCE polling (no WebSocket)
+  // ✅ stable everywhere (polling only)
   socket = io(BACKEND, {
     transports: ["polling"],
+    upgrade: false,
     timeout: 60000
   });
 
@@ -148,26 +165,39 @@ async function startConnection(){
   socket.on("waiting", () => {
     setStatus("Waiting for a stranger…", "wait");
     sendBtn.disabled = true;
+    showTyping(false);
   });
 
   socket.on("matched", ({ room, partner }) => {
     currentRoom = room;
     messagesEl.innerHTML = "";
     setStatus(`${partner.gender} connected ✅`, "ok");
-    addMsg("You are now chatting with a stranger. Be respectful 🙂");
+    addMsg("✅ Connected. Be kind. No personal info. Stay safe.", "system");
     sendBtn.disabled = false;
     inputEl.focus();
+    showTyping(false);
   });
 
-  socket.on("receive_message", (msg) => addMsg(msg, "them"));
+  socket.on("receive_message", (msg) => {
+    showTyping(false);
+    addMsg(msg, "them");
+  });
 
   socket.on("partner_left", () => {
-    addMsg("⚠️ Stranger left the chat");
+    showTyping(false);
+    addMsg("⚠️ Stranger left the chat.");
     sendBtn.disabled = true;
     setStatus("Stranger disconnected", "off");
   });
 
+  socket.on("typing", () => {
+    showTyping(true);
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => showTyping(false), 1200);
+  });
+
   socket.on("connect_error", () => {
+    showTyping(false);
     setStatus("Connection failed. Press New Chat.", "off");
     addMsg("⚠️ Connection failed. Press New Chat to retry.", "system");
     sendBtn.disabled = true;
@@ -178,6 +208,7 @@ function skipChat(){
   messagesEl.innerHTML = "";
   currentRoom = null;
   sendBtn.disabled = true;
+  showTyping(false);
 
   if (!socket || socket.disconnected) {
     startConnection();
@@ -192,16 +223,29 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") skipChat();
 });
 
-sendBtn.onclick = () => {
+function sendNow(){
   const msg = inputEl.value.trim();
   if(!msg || !currentRoom || !socket || socket.disconnected) return;
   addMsg(msg, "me");
   socket.emit("send_message", { room: currentRoom, message: msg });
   inputEl.value = "";
-};
+  iAmTyping = false;
+}
+
+sendBtn.onclick = sendNow;
 
 inputEl.addEventListener("keydown", e => {
-  if(e.key === "Enter") sendBtn.click();
+  if(e.key === "Enter") sendNow();
+});
+
+inputEl.addEventListener("input", () => {
+  if(!socket || socket.disconnected || !currentRoom) return;
+
+  if(!iAmTyping){
+    iAmTyping = true;
+    socket.emit("typing", { room: currentRoom });
+    setTimeout(() => { iAmTyping = false; }, 700);
+  }
 });
 
 document.getElementById("nextBtn").onclick = skipChat;

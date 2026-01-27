@@ -7,7 +7,7 @@ const app = express();
 const server = http.createServer(app);
 
 function isAllowedOrigin(origin) {
-  if (!origin) return true; // uptime robot, curl, etc.
+  if (!origin) return true;
   try {
     const { hostname } = new URL(origin);
     return (
@@ -23,7 +23,6 @@ function isAllowedOrigin(origin) {
   }
 }
 
-// ✅ CORS for normal HTTP routes like /health
 app.use(
   cors({
     origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
@@ -34,7 +33,6 @@ app.use(
 app.get("/", (req, res) => res.send("Chatzi backend is running ✅"));
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-// ✅ Socket.IO (FORCE polling to avoid WebSocket-blocked networks)
 const io = new Server(server, {
   cors: {
     origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
@@ -91,10 +89,16 @@ io.on("connection", (socket) => {
 
     const now = Date.now();
     const last = lastMsgTime.get(socket.id) || 0;
-    if (now - last < 400) return; // anti spam
+    if (now - last < 400) return;
 
     lastMsgTime.set(socket.id, now);
     socket.to(room).emit("receive_message", message);
+  });
+
+  // ✅ typing event
+  socket.on("typing", ({ room }) => {
+    if (!room) return;
+    socket.to(room).emit("typing");
   });
 
   socket.on("disconnect", () => {
