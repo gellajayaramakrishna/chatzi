@@ -1,3 +1,5 @@
+document.addEventListener("gesturestart", function(e){ e.preventDefault(); });
+
 /* ===========================
    Chatzi client script
    - socket matchmaking

@@ -382,3 +382,86 @@ a{ color:inherit; text-decoration:none; }
   .composer{ flex-wrap:wrap; }
   .sendBtn,.newChatBtn{ flex:1; }
 }
+
+/* =========================
+   MOBILE FIXES (CRITICAL)
+   ========================= */
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Prevent input zoom on iOS */
+input, textarea, button {
+  font-size: 16px !important;
+}
+
+/* Use safe viewport height */
+.fullChatPage {
+  height: 100svh;
+}
+
+/* Chat wrapper full height */
+.chatWrap {
+  height: calc(100svh - 62px);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Chat box scrolls, page does NOT */
+.chatBox {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Composer sticks to bottom */
+.composer {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* Bigger tap targets on mobile */
+.sendBtn,
+.newChatBtn,
+.gifBtn {
+  min-height: 48px;
+}
+
+/* Prevent accidental horizontal scroll */
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* MOBILE LAYOUT TWEAKS */
+@media (max-width: 640px) {
+  .chatBox {
+    border-radius: 14px;
+  }
+
+  .chipsRow {
+    display: none; /* cleaner on mobile */
+  }
+
+  .hintBox {
+    font-size: 12px;
+    padding: 8px 10px;
+  }
+
+  .statusLine {
+    font-size: 12px;
+  }
+
+  .composer {
+    gap: 6px;
+  }
+
+  .msgBubble {
+    max-width: 88%;
+    font-size: 14px;
+  }
+}
