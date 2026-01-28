@@ -1,53 +1,31 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatzi — Chat with Strangers</title>
-  <link rel="icon" href="./assets/logo.svg" />
-  <link rel="stylesheet" href="./style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+
+  <title>Chatzi — Talk With Strangers Online (Anonymous Chat)</title>
+
+  <meta name="description" content="Chat anonymously with strangers online. Instant random text chat. No signup required. 18+ only." />
+
+  <link rel="canonical" href="https://chatzi.me/" />
+
+  <meta property="og:title" content="Chatzi — Talk With Strangers Online" />
+  <meta property="og:description" content="Anonymous • Instant • No signup — start chatting now." />
+  <meta property="og:url" content="https://chatzi.me/" />
+  <meta property="og:type" content="website" />
+
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="landing">
-  <header class="landingTop">
-    <div class="brandRow">
-      <img class="brandLogo" src="./assets/logo.svg" alt="Chatzi" />
-      <div class="brandName">Chatzi</div>
-    </div>
-  </header>
 
-  <main class="landingMain">
-    <div class="landingCard">
-      <h1>Chat with Strangers</h1>
-      <div class="sub">Anonymous • Instant • No signup</div>
+<body>
+  <div class="home">
+    <h1>Chat with Strangers</h1>
+    <p>Anonymous • Instant • No signup</p>
 
-      <div class="onlineRow">
-        <span class="dot"></span>
-        <span id="onlineCount">… people online now</span>
-      </div>
+    <a href="start.html" class="startBtn">Start Text Chat</a>
 
-      <p class="desc">
-        Talk to random people online through anonymous text chat.
-        No registration, no personal details — just start chatting.
-      </p>
-
-      <a class="btnPrimary" href="./start.html">Start Text Chat</a>
-
-      <div class="featureRow">
-        <div class="feature"><span>🔒</span> Anonymous</div>
-        <div class="feature"><span>⚡</span> Instant</div>
-        <div class="feature"><span>💬</span> Real-time</div>
-      </div>
-
-      <div class="footerNote">© Chatzi • Be respectful • 18+</div>
-    </div>
-  </main>
-
-  <script>
-    // Just display a friendly number on landing.
-    // Real count is shown inside chat page via websocket.
-    const el = document.getElementById("onlineCount");
-    const n = Math.floor(1200 + Math.random() * 3800);
-    el.textContent = `${n.toLocaleString()} people online now`;
-  </script>
+    <footer>© Chatzi • Be respectful • 18+</footer>
+  </div>
 </body>
 </html>
