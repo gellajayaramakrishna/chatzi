@@ -4,54 +4,67 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Chatzi — Start</title>
-  <link rel="stylesheet" href="./style.css"/>
+  <link rel="icon" href="./assets/logo.svg" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
-<body class="start2-page">
-  <main class="start2-wrap">
-    <section class="start2-card">
-      <div class="topRow">
-        <a class="backLink" href="./index.html">← Back</a>
-        <div class="miniBrand">Chatzi</div>
+<body class="startPage">
+  <header class="topbarSimple">
+    <div class="brandRow">
+      <img class="brandLogo" src="./assets/logo.svg" alt="Chatzi" />
+      <div class="brandName">Chatzi</div>
+    </div>
+  </header>
+
+  <main class="startMain">
+    <div class="startCard">
+      <div class="startTitle">Start Chatting!</div>
+      <div class="startSub">Choose your gender and start yapping.</div>
+
+      <div class="handleLine">
+        Your handle: <b id="handle">@anonymous</b>
       </div>
 
-      <h2 class="start2-title">Start chatting</h2>
-      <p class="start2-sub">Pick your gender and enter. (Name is random)</p>
+      <div class="labelRow">Select your gender <span class="req">*</span></div>
 
-      <div class="pickRow">
-        <button class="pickBtn" data-g="Male">♂ Male</button>
-        <button class="pickBtn" data-g="Female">♀ Female</button>
-        <button class="pickBtn" data-g="Other">⚧ Other</button>
+      <div class="genderGrid">
+        <button class="genderBtn" data-g="Male">♂ Male</button>
+        <button class="genderBtn" data-g="Female">♀ Female</button>
+        <button class="genderBtn" data-g="Other">⚧ Other</button>
       </div>
 
-      <button id="goBtn" class="cta2" disabled>Start</button>
+      <button id="startBtn" class="btnPrimary wide" disabled>Start Text Chat</button>
 
-      <p class="tiny">Tip: Press <b>Esc</b> to skip anytime.</p>
-    </section>
+      <div class="miniNote">
+        Be kind 🤝 • No personal info 🚫 • Stay safe ✅
+      </div>
+    </div>
   </main>
 
   <script>
-    const btns = document.querySelectorAll(".pickBtn");
-    const go = document.getElementById("goBtn");
-    let gender = null;
+    // Random handle generator
+    const animals = ["tiger","otter","hawk","wolf","panda","fox","lion","eagle","bear","dolphin","rabbit","koala"];
+    const adj = ["wild","neon","fast","calm","proud","bright","silent","mystic","gentle","royal","swift","cool"];
+    const num = () => Math.floor(1000 + Math.random() * 9000);
+    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+    const name = `${pick(adj)}_${pick(animals)}_${num()}`;
 
-    btns.forEach(b => {
+    const handleEl = document.getElementById("handle");
+    handleEl.textContent = "@"+name;
+
+    let gender = "";
+    const buttons = document.querySelectorAll(".genderBtn");
+    buttons.forEach(b => {
       b.addEventListener("click", () => {
-        btns.forEach(x => x.classList.remove("active"));
+        buttons.forEach(x => x.classList.remove("active"));
         b.classList.add("active");
         gender = b.dataset.g;
-        go.disabled = false;
+        document.getElementById("startBtn").disabled = false;
       });
     });
 
-    function randName(){
-      const a = ["cool","soft","wild","quiet","brave","cute","fast","shy","bold","nice"];
-      const b = ["tiger","fox","panda","eagle","wolf","otter","koala","lion","cat","hawk"];
-      return a[Math.floor(Math.random()*a.length)] + "_" + b[Math.floor(Math.random()*b.length)] + "_" + Math.floor(1000+Math.random()*9000);
-    }
-
-    go.addEventListener("click", () => {
-      const name = randName();
-      location.href = `./chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(gender)}`;
+    document.getElementById("startBtn").addEventListener("click", () => {
+      const url = `./chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(gender)}`;
+      window.location.href = url;
     });
   </script>
 </body>

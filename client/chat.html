@@ -4,58 +4,71 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Chatzi — Chat</title>
-  <link rel="stylesheet" href="./style.css"/>
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js" crossorigin="anonymous"></script>
+  <link rel="icon" href="./assets/logo.svg" />
+  <link rel="stylesheet" href="./style.css" />
 </head>
-
 <body class="fullChatPage">
-
-  <!-- TOP BAR -->
   <div class="topbar">
     <div class="topLeft">
-      <div class="logoDot">💬</div>
-      <div class="logoText">Chatzi</div>
+      <img class="brandLogoSmall" src="./assets/logo.svg" alt="Chatzi" />
+      <div class="brandNameSmall">Chatzi</div>
     </div>
 
     <div class="handleRow">
-      <span id="handle">@user</span>
-      <span class="greenDot"></span>
+      <span id="myHandle">@anonymous</span>
+      <span class="greenDot" title="Online"></span>
+      <span class="pill" id="onlinePill">… online</span>
     </div>
 
     <div class="topRight">
       <span class="badge">Press <b>Esc</b> to skip</span>
+      <button class="iconBtn" id="helpBtn" title="Safety">🛡️</button>
     </div>
   </div>
 
-  <!-- CHAT AREA -->
   <div class="chatWrap">
-    <div class="centerInfo">
-      ✨ Send messages to your stranger ✨<br />
-      <small>Be kind 🤝 • No personal info 🚫 • Stay safe ✅</small>
+    <div class="hintBox">
+      ✨ <b>Send messages to your stranger!</b> ✨<br/>
+      Be kind 🤝 • No personal info 🚫 • Stay safe ✅
     </div>
 
-    <div id="messages"></div>
+    <div class="statusLine" id="statusLine">Connecting…</div>
 
-    <div id="typingIndicator" class="typing" style="display:none;">
-      Stranger is typing<span class="dots">...</span>
+    <div class="chatBox" id="chatBox"></div>
+
+    <div class="typingLine" id="typingLine" style="display:none;">Stranger is typing…</div>
+
+    <div class="chipsRow" id="chipsRow">
+      <button class="chip">🌍 Where are you from?</button>
+      <button class="chip">🔥 What brings you here today?</button>
+      <button class="chip">👀 What are you looking for?</button>
+      <button class="chip">🎵 What music are you into?</button>
+      <button class="chip">✨ Tell me something cool</button>
+    </div>
+
+    <div class="composer">
+      <button class="gifBtn" id="gifBtn">GIF</button>
+      <input id="messageInput" class="msgInput" placeholder="Message…" autocomplete="off" />
+      <button id="sendBtn" class="sendBtn">Send ➤</button>
+      <button id="newChatBtn" class="newChatBtn">New Chat</button>
     </div>
   </div>
 
-  <!-- SUGGESTIONS -->
-  <div class="suggestions">
-    <button>🌍 Where are you from?</button>
-    <button>🔥 What brings you here?</button>
-    <button>🎧 What music are you into?</button>
-    <button>💬 Tell me something cool</button>
+  <!-- GIF modal -->
+  <div class="overlay" id="overlay" style="display:none;">
+    <div class="modal">
+      <div class="modalTitle">Send a GIF</div>
+      <div class="modalSub">Paste a direct GIF URL (ends with .gif)</div>
+      <input id="gifUrl" class="modalInput" placeholder="https://…/something.gif" />
+      <div class="modalActions">
+        <button class="btnGhost" id="gifCancel">Cancel</button>
+        <button class="btnPrimary" id="gifSend">Send GIF</button>
+      </div>
+    </div>
   </div>
 
-  <!-- INPUT BAR -->
-  <div class="inputBar">
-    <button class="gifBtn">GIF</button>
-    <input id="messageInput" placeholder="Message..." />
-    <button id="sendBtn">Send ➤</button>
-    <button id="newChatBtn">New Chat</button>
-  </div>
-
+  <!-- Socket.IO client -->
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="./script.js"></script>
 </body>
 </html>
