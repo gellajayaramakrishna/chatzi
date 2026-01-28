@@ -123,6 +123,7 @@ socket.on("partner_left", () => {
 
 socket.on("message", (msg) => {
   // msg: { type, text, url, from }
+  if (soundEnabled) popSound.play().catch(()=>{});
   if (!msg) return;
 
   if (msg.type === "gif" && msg.url) {
@@ -233,4 +234,38 @@ gifSend.addEventListener("click", () => {
 /* Safety button */
 document.getElementById("helpBtn").addEventListener("click", () => {
   alert("Safety tips:\n\n• Don’t share phone/email/address\n• Don’t send money\n• If uncomfortable, press Esc to skip\n• Be respectful ✅");
+});
+
+/* ===== Message Sound ===== */
+const soundBtn = document.getElementById("soundBtn");
+let soundEnabled = localStorage.getItem("sound") !== "off";
+
+const popSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3");
+
+function updateSoundIcon() {
+  soundBtn.textContent = soundEnabled ? "🔊" : "🔇";
+}
+updateSoundIcon();
+
+soundBtn.addEventListener("click", () => {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem("sound", soundEnabled ? "on" : "off");
+  updateSoundIcon();
+});
+
+/* ===== Dark Mode ===== */
+const themeBtn = document.getElementById("themeBtn");
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") document.body.classList.add("dark");
+
+function updateThemeIcon() {
+  themeBtn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+}
+updateThemeIcon();
+
+themeBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  updateThemeIcon();
 });

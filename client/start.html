@@ -69,3 +69,32 @@
   </script>
 </body>
 </html>
+
+<script>
+  let interest = "";
+
+  const interests = ["Casual", "Flirting", "Music", "Movies", "Friendship"];
+  const container = document.createElement("div");
+  container.className = "genderGrid";
+  container.style.marginTop = "14px";
+
+  interests.forEach(i => {
+    const b = document.createElement("button");
+    b.className = "genderBtn";
+    b.textContent = i;
+    b.onclick = () => {
+      interest = i;
+      container.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+    };
+    container.appendChild(b);
+  });
+
+  document.querySelector(".startCard").insertBefore(container, document.getElementById("startBtn"));
+
+  const oldClick = document.getElementById("startBtn").onclick;
+  document.getElementById("startBtn").onclick = () => {
+    if (!interest) return alert("Please select an interest");
+    window.location.href += "&interest=" + encodeURIComponent(interest);
+  };
+</script>
