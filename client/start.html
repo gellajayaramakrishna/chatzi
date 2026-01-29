@@ -2,46 +2,77 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chatzi – Chat with Strangers</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Chatzi — Choose</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="startPage">
+<body class="startPageNew">
 
-  <div class="startLogo">
-    <div class="logoEmoji">🦊</div>
-    <h1>Chatzi</h1>
-    <p>Anonymous • Instant • No signup</p>
-  </div>
-
-  <div class="genderBox">
-    <div class="genderTitle">Choose your vibe</div>
-
-    <div class="genderOptions">
-      <button class="genderBtn" data-gender="Male">♂ Male</button>
-      <button class="genderBtn" data-gender="Female">♀ Female</button>
-      <button class="genderBtn" data-gender="Other">⚧ Other</button>
+  <div class="startShell">
+    <div class="startTop">
+      <div class="brandMini">
+        <img class="brandLogoMini" src="assets/logo.svg" alt="Chatzi"/>
+        <div>
+          <div class="brandNameMini">Chatzi</div>
+          <div class="brandSubMini">Pick one and start</div>
+        </div>
+      </div>
     </div>
 
-    <button id="startChatBtn" disabled>Start Chat</button>
+    <div class="startBox">
+      <h1 class="startTitle">Who are you?</h1>
+      <p class="startSub">This helps matching. No signup.</p>
+
+      <div class="genderGrid">
+        <button class="genderCard" data-gender="Male">
+          <div class="gIcon">♂</div>
+          <div class="gText">
+            <div class="gTitle">Male</div>
+            <div class="gSub">Chat instantly</div>
+          </div>
+        </button>
+
+        <button class="genderCard" data-gender="Female">
+          <div class="gIcon">♀</div>
+          <div class="gText">
+            <div class="gTitle">Female</div>
+            <div class="gSub">Chat instantly</div>
+          </div>
+        </button>
+
+        <button class="genderCard" data-gender="Other">
+          <div class="gIcon">⚧</div>
+          <div class="gText">
+            <div class="gTitle">Other</div>
+            <div class="gSub">Chat instantly</div>
+          </div>
+        </button>
+      </div>
+
+      <button id="goBtn" class="goBtn" disabled>Continue</button>
+
+      <div class="miniNote">Press Esc anytime to skip in chat.</div>
+    </div>
+
+    <div class="startFooter">© Chatzi • 18+</div>
   </div>
 
 <script>
-  let selectedGender = null;
+  let selected = null;
 
-  document.querySelectorAll(".genderBtn").forEach(btn => {
+  document.querySelectorAll(".genderCard").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".genderCard").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      selectedGender = btn.dataset.gender;
-      document.getElementById("startChatBtn").disabled = false;
+      selected = btn.dataset.gender;
+      document.getElementById("goBtn").disabled = false;
     });
   });
 
-  document.getElementById("startChatBtn").onclick = () => {
+  document.getElementById("goBtn").addEventListener("click", () => {
     const name = "user" + Math.floor(Math.random() * 10000);
-    window.location.href = "chat.html?name=" + name + "&gender=" + selectedGender;
-  };
+    window.location.href = "chat.html?name=" + encodeURIComponent(name) + "&gender=" + encodeURIComponent(selected);
+  });
 </script>
 
 </body>

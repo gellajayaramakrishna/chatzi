@@ -2,70 +2,68 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Chatzi – Chat with Strangers</title>
-  <link rel="stylesheet" href="style.css"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Chatzi — Talk With Strangers</title>
+  <meta name="description" content="Chat anonymously with strangers instantly. No signup. Just start chatting." />
+  <link rel="stylesheet" href="style.css" />
 </head>
-<body class="startPage">
+<body class="landingPage">
 
-  <div class="startCard">
-    <div class="brandRow">
-      <div class="brandIcon">🦊</div>
-      <div class="brandText">
-        <div class="brandName">Chatzi</div>
-        <div class="brandSub">Anonymous • Instant • No signup</div>
+  <header class="landingHeader">
+    <div class="brandLeft">
+      <img class="brandLogo" src="assets/logo.svg" alt="Chatzi"/>
+      <div class="brandName">Chatzi</div>
+    </div>
+    <div class="brandRight">
+      <span class="pill">Anonymous</span>
+      <span class="pill">Instant</span>
+      <span class="pill">No signup</span>
+    </div>
+  </header>
+
+  <main class="landingMain">
+    <div class="hero">
+      <h1>Talk with strangers, instantly.</h1>
+      <p>
+        Anonymous chat rooms for fun, flirting, or just killing time.
+        No registration — just vibes.
+      </p>
+
+      <div class="landingStats">
+        <span class="dot"></span>
+        <span><b id="onlineCount">—</b> people online now</span>
+      </div>
+
+      <div class="ctaRow">
+        <a class="primaryBtn" href="start.html">Start Text Chat</a>
+        <a class="ghostBtn" href="start.html">Find Match</a>
+      </div>
+
+      <div class="landingTips">
+        <div>✅ Be kind</div>
+        <div>🚫 No personal info</div>
+        <div>🛡️ Stay safe</div>
       </div>
     </div>
 
-    <div class="heroTitle">Chat with Strangers</div>
-    <div class="heroDesc">
-      Talk to random people online through anonymous chat.
-      No registration, no personal details — just start chatting.
+    <div class="landingCard">
+      <div class="cardTitle">Quick rules</div>
+      <ul class="ruleList">
+        <li>No harassment</li>
+        <li>No sharing phone/email/address</li>
+        <li>18+ only</li>
+      </ul>
     </div>
+  </main>
 
-    <div class="onlinePill">
-      <span class="dot"></span>
-      <span id="onlineCount">—</span> people online now
-    </div>
-
-    <div class="genderTitle">Select your gender <span class="req">*</span></div>
-    <div class="genderOptions">
-      <button class="genderBtn" data-gender="Male">♂ Male</button>
-      <button class="genderBtn" data-gender="Female">♀ Female</button>
-      <button class="genderBtn" data-gender="Other">⚧ Other</button>
-    </div>
-
-    <button id="startChatBtn" class="ctaBtn" disabled>Start Text Chat</button>
-
-    <div class="miniBadges">
-      <div>🔒 Anonymous</div>
-      <div>⚡ Instant</div>
-      <div>💬 Real-time</div>
-    </div>
-
-    <div class="footerNote">© Chatzi • Be respectful • 18+</div>
-  </div>
+  <footer class="landingFooter">
+    © Chatzi • Be respectful • 18+
+  </footer>
 
 <script>
-  // clean random online count (no fake gender match etc.)
-  const count = Math.floor(800 + Math.random() * 6000);
-  document.getElementById("onlineCount").textContent = count;
-
-  let selectedGender = null;
-
-  document.querySelectorAll(".genderBtn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      selectedGender = btn.dataset.gender;
-      document.getElementById("startChatBtn").disabled = false;
-    });
-  });
-
-  document.getElementById("startChatBtn").onclick = () => {
-    const name = "user" + Math.floor(Math.random() * 10000);
-    window.location.href = "chat.html?name=" + encodeURIComponent(name) + "&gender=" + encodeURIComponent(selectedGender);
-  };
+  // simple online counter (not gender-fake matching)
+  const count = Math.floor(600 + Math.random() * 5200);
+  document.getElementById("onlineCount").textContent = count.toLocaleString();
 </script>
 
 </body>
