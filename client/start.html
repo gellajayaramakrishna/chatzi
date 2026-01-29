@@ -1,100 +1,48 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatzi — Start</title>
-  <link rel="icon" href="./assets/logo.svg" />
-  <link rel="stylesheet" href="./style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatzi – Chat with Strangers</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body class="startPage">
-  <header class="topbarSimple">
-    <div class="brandRow">
-      <img class="brandLogo" src="./assets/logo.svg" alt="Chatzi" />
-      <div class="brandName">Chatzi</div>
+
+  <div class="startLogo">
+    <div class="logoEmoji">🦊</div>
+    <h1>Chatzi</h1>
+    <p>Anonymous • Instant • No signup</p>
+  </div>
+
+  <div class="genderBox">
+    <div class="genderTitle">Choose your vibe</div>
+
+    <div class="genderOptions">
+      <button class="genderBtn" data-gender="Male">♂ Male</button>
+      <button class="genderBtn" data-gender="Female">♀ Female</button>
+      <button class="genderBtn" data-gender="Other">⚧ Other</button>
     </div>
-  </header>
 
-  <main class="startMain">
-    <div class="startCard">
-      <div class="startTitle">Start Chatting!</div>
-      <div class="startSub">Choose your gender and start yapping.</div>
-
-      <div class="handleLine">
-        Your handle: <b id="handle">@anonymous</b>
-      </div>
-
-      <div class="labelRow">Select your gender <span class="req">*</span></div>
-
-      <div class="genderGrid">
-        <button class="genderBtn" data-g="Male">♂ Male</button>
-        <button class="genderBtn" data-g="Female">♀ Female</button>
-        <button class="genderBtn" data-g="Other">⚧ Other</button>
-      </div>
-
-      <button id="startBtn" class="btnPrimary wide" disabled>Start Text Chat</button>
-
-      <div class="miniNote">
-        Be kind 🤝 • No personal info 🚫 • Stay safe ✅
-      </div>
-    </div>
-  </main>
-
-  <script>
-    // Random handle generator
-    const animals = ["tiger","otter","hawk","wolf","panda","fox","lion","eagle","bear","dolphin","rabbit","koala"];
-    const adj = ["wild","neon","fast","calm","proud","bright","silent","mystic","gentle","royal","swift","cool"];
-    const num = () => Math.floor(1000 + Math.random() * 9000);
-    const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-    const name = `${pick(adj)}_${pick(animals)}_${num()}`;
-
-    const handleEl = document.getElementById("handle");
-    handleEl.textContent = "@"+name;
-
-    let gender = "";
-    const buttons = document.querySelectorAll(".genderBtn");
-    buttons.forEach(b => {
-      b.addEventListener("click", () => {
-        buttons.forEach(x => x.classList.remove("active"));
-        b.classList.add("active");
-        gender = b.dataset.g;
-        document.getElementById("startBtn").disabled = false;
-      });
-    });
-
-    document.getElementById("startBtn").addEventListener("click", () => {
-      const url = `./chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(gender)}`;
-      window.location.href = url;
-    });
-  </script>
-</body>
-</html>
+    <button id="startChatBtn" disabled>Start Chat</button>
+  </div>
 
 <script>
-  let interest = "";
+  let selectedGender = null;
 
-  const interests = ["Casual", "Flirting", "Music", "Movies", "Friendship"];
-  const container = document.createElement("div");
-  container.className = "genderGrid";
-  container.style.marginTop = "14px";
-
-  interests.forEach(i => {
-    const b = document.createElement("button");
-    b.className = "genderBtn";
-    b.textContent = i;
-    b.onclick = () => {
-      interest = i;
-      container.querySelectorAll("button").forEach(x=>x.classList.remove("active"));
-      b.classList.add("active");
-    };
-    container.appendChild(b);
+  document.querySelectorAll(".genderBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedGender = btn.dataset.gender;
+      document.getElementById("startChatBtn").disabled = false;
+    });
   });
 
-  document.querySelector(".startCard").insertBefore(container, document.getElementById("startBtn"));
-
-  const oldClick = document.getElementById("startBtn").onclick;
-  document.getElementById("startBtn").onclick = () => {
-    if (!interest) return alert("Please select an interest");
-    window.location.href += "&interest=" + encodeURIComponent(interest);
+  document.getElementById("startChatBtn").onclick = () => {
+    const name = "user" + Math.floor(Math.random() * 10000);
+    window.location.href = "chat.html?name=" + name + "&gender=" + selectedGender;
   };
 </script>
+
+</body>
+</html>

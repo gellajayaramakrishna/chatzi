@@ -506,3 +506,93 @@ body.dark .msgBubble {
 body.dark .me .msgBubble {
   background: rgba(255,79,163,.15);
 }
+
+/* ===== START PAGE ===== */
+
+.startPage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(180deg, #fff, #ffe9f1);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.startLogo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.logoEmoji {
+  font-size: 48px;
+  margin-bottom: 6px;
+}
+
+.startLogo h1 {
+  font-size: 34px;
+  margin: 0;
+}
+
+.startLogo p {
+  color: #777;
+  margin-top: 6px;
+}
+
+.genderBox {
+  background: #fff;
+  padding: 28px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 10px 30px rgba(255, 105, 180, 0.25);
+}
+
+.genderTitle {
+  text-align: center;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.genderOptions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.genderBtn {
+  flex: 1;
+  padding: 14px;
+  border-radius: 14px;
+  border: 2px solid #eee;
+  background: #fafafa;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.genderBtn:hover {
+  border-color: #ff6fae;
+}
+
+.genderBtn.active {
+  background: linear-gradient(135deg, #ff5fa2, #ff87c3);
+  color: #fff;
+  border-color: transparent;
+}
+
+#startChatBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg, #ff5fa2, #ff87c3);
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+#startChatBtn:enabled {
+  opacity: 1;
+}
