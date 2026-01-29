@@ -1,23 +1,248 @@
-/* ============== BASE ============== */
+/* =======================
+   GLOBAL / THEME
+   ======================= */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color:#0f172a;
-  background:#ffffff;
+  background:
+    radial-gradient(1100px 650px at 15% 0%, rgba(99,102,241,.12), transparent 55%),
+    radial-gradient(900px 600px at 85% 10%, rgba(236,72,153,.10), transparent 55%),
+    radial-gradient(900px 700px at 50% 100%, rgba(34,211,238,.08), transparent 55%),
+    linear-gradient(180deg, #fff, #fafafa);
 }
 
-/* ============================
-   CHAT PAGE (scoped)
-   ============================ */
-body.fullChatPage{
-  background:
-    radial-gradient(1200px 700px at 20% 0%, rgba(99,102,241,.10), transparent 55%),
-    radial-gradient(900px 600px at 80% 15%, rgba(236,72,153,.10), transparent 55%),
-    radial-gradient(1000px 700px at 40% 100%, rgba(34,211,238,.10), transparent 55%),
-    linear-gradient(180deg, #fff, #fafafa);
+a{color:inherit}
+button,input{font-family:inherit}
+
+/* Reusable: card */
+.card{
+  background: rgba(255,255,255,.80);
+  border:1px solid rgba(15,23,42,.08);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 24px 60px rgba(2,6,23,.08);
+  border-radius:22px;
+}
+
+/* Reusable: gradient primary button */
+.btnPrimary{
+  border:0;
+  cursor:pointer;
+  font-weight:900;
+  letter-spacing:.2px;
+  color:#fff;
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  box-shadow: 0 16px 34px rgba(99,102,241,.22);
+  transition: transform .08s ease, filter .15s ease;
+}
+.btnPrimary:hover{filter:brightness(1.03)}
+.btnPrimary:active{transform: translateY(1px)}
+
+/* Reusable: soft button */
+.btnSoft{
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(15,23,42,.06);
+  cursor:pointer;
+  font-weight:900;
+  color:#0f172a;
+  transition: background .15s ease, transform .08s ease;
+}
+.btnSoft:hover{background: rgba(15,23,42,.08)}
+.btnSoft:active{transform: translateY(1px)}
+
+/* Reusable: input */
+.input{
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.92);
+  outline:none;
+}
+.input:focus{
+  border-color: rgba(99,102,241,.45);
+  box-shadow: 0 0 0 5px rgba(99,102,241,.12);
+}
+
+/* =======================
+   START PAGE (start.html)
+   ======================= */
+.startPage{
   min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:22px;
+}
+
+.startWrap{
+  width:min(980px, 100%);
+  display:grid;
+  grid-template-columns: 1.1fr .9fr;
+  gap:18px;
+}
+
+@media (max-width: 860px){
+  .startWrap{grid-template-columns:1fr}
+}
+
+.hero{
+  padding:26px;
+}
+.heroTop{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.moonLogo{
+  width:46px;height:46px;
+  border-radius:16px;
+  display:grid;place-items:center;
+  background: linear-gradient(135deg, rgba(99,102,241,.22), rgba(236,72,153,.16));
+  box-shadow: 0 12px 26px rgba(2,6,23,.12);
+  font-size:18px;
+}
+.heroTitle{
+  font-size:34px;
+  font-weight:1000;
+  margin:10px 0 6px;
+}
+.heroSub{
+  color:#475569;
+  font-weight:700;
+  line-height:1.5;
+  margin:0;
+}
+
+.pills{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+.pill{
+  font-size:12px;
+  font-weight:900;
+  color:#334155;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.65);
+}
+
+.startCTA{
+  padding:26px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:12px;
+}
+.ctaTitle{
+  font-size:16px;
+  font-weight:1000;
+  margin:0;
+}
+.ctaSub{
+  margin:0;
+  color:#475569;
+  font-weight:700;
+  line-height:1.5;
+  font-size:13px;
+}
+.bigBtn{
+  height:52px;
+  border-radius:16px;
+  font-size:15px;
+}
+.footerNote{
+  margin-top:10px;
+  font-size:12px;
+  color:#64748b;
+  font-weight:700;
+}
+
+/* =======================
+   GENDER PAGE (index.html)
+   ======================= */
+.genderPage{
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:22px;
+}
+.genderCard{
+  width:min(560px, 100%);
+  padding:22px;
+}
+.genderHeader{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.genderTitle{
+  font-size:22px;
+  font-weight:1000;
+  margin:0;
+}
+.genderDesc{
+  margin:6px 0 0;
+  color:#475569;
+  font-weight:700;
+  line-height:1.5;
+  font-size:13px;
+}
+.genderGrid{
+  margin-top:16px;
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap:10px;
+}
+@media (max-width: 520px){
+  .genderGrid{grid-template-columns:1fr}
+}
+.genderBtn{
+  height:54px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  font-size:14px;
+  font-weight:1000;
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(255,255,255,.85);
+  cursor:pointer;
+  transition: transform .08s ease, box-shadow .15s ease;
+}
+.genderBtn:hover{
+  box-shadow: 0 16px 30px rgba(2,6,23,.08);
+}
+.genderBtn:active{transform: translateY(1px)}
+.genderBtn.active{
+  border-color: rgba(99,102,241,.45);
+  box-shadow: 0 0 0 5px rgba(99,102,241,.12);
+}
+.genderActions{
+  margin-top:14px;
+  display:flex;
+  gap:10px;
+}
+.nameInput{
+  height:46px;
+  border-radius:14px;
+  padding:0 12px;
+  flex:1;
+}
+.goBtn{
+  height:46px;
+  border-radius:14px;
+  padding:0 16px;
+}
+
+/* =======================
+   CHAT PAGE (chat.html)
+   ======================= */
+.fullChatPage{
+  height:100vh;
+  overflow:hidden; /* IMPORTANT: no scroll to find chat box */
 }
 
 /* Topbar */
@@ -34,15 +259,12 @@ body.fullChatPage{
   backdrop-filter: blur(14px);
   border-bottom:1px solid rgba(15,23,42,.08);
 }
-
 .fullChatPage .topLeft{
   display:flex;
   align-items:center;
   gap:10px;
-  font-weight:800;
-  letter-spacing:.2px;
+  font-weight:1000;
 }
-
 .fullChatPage .logoMoon{
   width:40px;height:40px;
   display:grid;place-items:center;
@@ -51,23 +273,18 @@ body.fullChatPage{
   box-shadow: 0 10px 24px rgba(2,6,23,.10);
   font-size:18px;
 }
-
-.fullChatPage .brand{font-size:16px}
-
 .fullChatPage .handleRow{
   display:flex;
   align-items:center;
   gap:10px;
+  font-weight:900;
   color:#334155;
-  font-weight:700;
 }
-
 .fullChatPage .greenDot{
   width:10px;height:10px;border-radius:99px;
   background:#22c55e;
   box-shadow:0 0 0 5px rgba(34,197,94,.12);
 }
-
 .fullChatPage .badge{
   font-size:12px;
   padding:8px 12px;
@@ -77,61 +294,60 @@ body.fullChatPage{
   color:#334155;
 }
 
-/* Info banner */
+/* Info banner (small) */
 .fullChatPage .infoBanner{
-  max-width:1100px;
-  margin:16px auto 0;
-  padding:12px 14px;
-  border-radius:16px;
+  width:min(1100px, calc(100% - 24px));
+  margin:10px auto 0;
+  padding:10px 12px;
+  border-radius:18px;
   background:rgba(255,255,255,.72);
   backdrop-filter: blur(12px);
   border:1px solid rgba(15,23,42,.08);
   box-shadow: 0 18px 40px rgba(2,6,23,.06);
   display:flex;
-  flex-direction:column;
-  gap:6px;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
   text-align:center;
 }
-
 .fullChatPage .infoSmall{
-  display:block;
-  font-size:12px;
-  font-weight:600;
-  color:#64748b;
-}
-
-.fullChatPage .infoStatus{
   font-size:12px;
   font-weight:800;
-  color:#111827;
-  opacity:.8;
+  color:#64748b;
+}
+.fullChatPage .statusPill{
+  font-size:12px;
+  font-weight:1000;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(15,23,42,.10);
+  background: rgba(15,23,42,.04);
+  color:#334155;
 }
 
-/* Chat container */
+/* Chat layout: fills remaining height */
 .fullChatPage .chatWrap{
-  max-width:1100px;
-  margin:14px auto 0;
-  padding:0 14px 14px;
+  width:min(1100px, calc(100% - 24px));
+  margin:10px auto 12px;
+  height: calc(100vh - 64px - 54px - 22px); /* topbar + infoBanner + margins */
   display:flex;
   flex-direction:column;
-  height: calc(100vh - 64px - 16px - 86px); /* topbar + info banner approx */
-  min-height: 520px;
+  gap:10px;
 }
 
-/* Messages box */
+/* Messages */
 .fullChatPage .chatBox{
   flex:1;
   overflow:auto;
-  padding:18px 14px;
+  padding:16px 14px;
   border-radius:22px;
   background:rgba(255,255,255,.70);
   backdrop-filter: blur(12px);
   border:1px solid rgba(15,23,42,.08);
   box-shadow: 0 24px 60px rgba(2,6,23,.07);
-  scroll-behavior:smooth;
 }
 
-/* Chat bubbles */
+/* Bubbles */
 .fullChatPage .msg{
   max-width:min(78%, 680px);
   padding:12px 14px;
@@ -145,33 +361,21 @@ body.fullChatPage{
   word-wrap:break-word;
   white-space:pre-wrap;
 }
-
 .fullChatPage .msg.mine{
   margin-left:auto;
   background:linear-gradient(135deg, rgba(99,102,241,.18), rgba(236,72,153,.14));
   border:1px solid rgba(99,102,241,.22);
 }
-
 .fullChatPage .sys{
   text-align:center;
   font-size:12px;
   color:#64748b;
-  padding:10px 8px;
-  margin:12px 0;
-}
-
-/* Typing indicator */
-.fullChatPage .typing{
-  margin:10px 6px 0;
-  font-size:12px;
-  color:#64748b;
-  font-weight:700;
-  transition:opacity .2s ease;
+  padding:8px 8px;
+  margin:10px 0;
 }
 
 /* Composer */
 .fullChatPage .composer{
-  margin-top:12px;
   display:flex;
   gap:10px;
   align-items:center;
@@ -182,13 +386,12 @@ body.fullChatPage{
   border:1px solid rgba(15,23,42,.08);
   box-shadow: 0 18px 50px rgba(2,6,23,.06);
 }
-
 .fullChatPage .msgInput{
   flex:1;
   height:46px;
   border-radius:14px;
   border:1px solid rgba(15,23,42,.10);
-  background:rgba(255,255,255,.9);
+  background:rgba(255,255,255,.92);
   padding:0 14px;
   outline:none;
   font-size:14px;
@@ -197,39 +400,18 @@ body.fullChatPage{
   border-color: rgba(99,102,241,.45);
   box-shadow: 0 0 0 5px rgba(99,102,241,.12);
 }
-
-.fullChatPage button{
-  border:none;
-  cursor:pointer;
-  font-weight:900;
-  letter-spacing:.2px;
-}
-
 .fullChatPage .sendBtn{
   height:46px;
   padding:0 18px;
   border-radius:14px;
-  color:white;
-  background: linear-gradient(135deg, #6366f1, #ec4899);
-  box-shadow: 0 14px 28px rgba(99,102,241,.22);
-  transition: transform .08s ease, filter .15s ease;
 }
-.fullChatPage .sendBtn:hover{filter:brightness(1.03)}
-.fullChatPage .sendBtn:active{transform: translateY(1px)}
-
 .fullChatPage .newChatBtn{
   height:46px;
   padding:0 14px;
   border-radius:14px;
-  color:#0f172a;
-  background: rgba(15,23,42,.06);
-  border:1px solid rgba(15,23,42,.10);
-  transition: transform .08s ease, background .15s ease;
 }
-.fullChatPage .newChatBtn:hover{background: rgba(15,23,42,.08)}
-.fullChatPage .newChatBtn:active{transform: translateY(1px)}
 
-/* Overlay modal */
+/* Overlay */
 .fullChatPage .overlay{
   position:fixed; inset:0;
   display:flex;
@@ -248,39 +430,21 @@ body.fullChatPage{
   box-shadow: 0 30px 80px rgba(2,6,23,.25);
   text-align:center;
 }
-.fullChatPage .modalTitle{
-  font-weight:1000;
-  font-size:18px;
-  color:#0f172a;
-}
-.fullChatPage .modalSub{
-  margin-top:6px;
-  color:#475569;
-  font-weight:700;
-  font-size:13px;
-}
+.fullChatPage .modalTitle{font-weight:1000;font-size:18px;margin:0}
+.fullChatPage .modalSub{margin:8px 0 0;color:#475569;font-weight:700;font-size:13px}
 .fullChatPage .modalBtn{
   margin-top:14px;
   height:44px;
-  padding:0 18px;
   border-radius:14px;
-  color:white;
-  background: linear-gradient(135deg, #6366f1, #ec4899);
-  box-shadow: 0 14px 28px rgba(99,102,241,.20);
 }
 
-/* Mobile fit (NO zoom issues) */
+/* Mobile */
 @media (max-width: 700px){
-  .fullChatPage .infoBanner{margin:10px 12px 0}
-  .fullChatPage .chatWrap{
-    height: calc(100vh - 64px - 10px - 90px);
-    min-height: 0;
-    padding:0 10px 12px;
-  }
-  .fullChatPage .chatBox{border-radius:18px}
-  .fullChatPage .composer{border-radius:16px;padding:10px}
-  .fullChatPage .msg{max-width: 88%}
   .fullChatPage .badge{display:none}
+  .fullChatPage .chatWrap{
+    width: calc(100% - 16px);
+    margin:8px auto 10px;
+    height: calc(100vh - 64px - 58px - 18px);
+  }
+  .fullChatPage .msg{max-width: 88%}
 }
-
-/* ============== (Optional) OTHER PAGES unaffected if they don't use these classes ============== */

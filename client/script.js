@@ -73,10 +73,7 @@ function connect() {
     timeout: 20000
   });
 
-  socket.on("connect", () => {
-    handleEl.textContent = "@anonymous";
-    addSystem("Connected ✅");
-    socket.emit("join", { name: myName, gender: myGender });
+  socket.on("connect",()=>{ setStatus("Online"); }););
   });
 
   socket.on("connect_error", (e) => {

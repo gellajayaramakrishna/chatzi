@@ -1,70 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Chatzi — Talk With Strangers</title>
-  <meta name="description" content="Chat anonymously with strangers instantly. No signup. Just start chatting." />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatzi • Start</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="landingPage">
-
-  <header class="landingHeader">
-    <div class="brandLeft">
-      <span class="emojiLogo">🌗</span>
-      <div class="brandName">Chatzi</div>
-    </div>
-    <div class="brandRight">
-      <span class="pill">Anonymous</span>
-      <span class="pill">Instant</span>
-      <span class="pill">No signup</span>
-    </div>
-  </header>
-
-  <main class="landingMain">
-    <div class="hero">
-      <h1>Talk with strangers, instantly.</h1>
-      <p>
-        Anonymous chat rooms for fun, flirting, or just killing time.
-        No registration — just vibes.
-      </p>
-
-      <div class="landingStats">
-        <span class="dot"></span>
-        <span><b id="onlineCount">—</b> people online now</span>
-      </div>
-
-      <div class="ctaRow">
-        <a class="primaryBtn" href="start.html">Start Text Chat</a>
-        <a class="ghostBtn" href="start.html">Find Match</a>
-      </div>
-
-      <div class="landingTips">
-        <div>✅ Be kind</div>
-        <div>🚫 No personal info</div>
-        <div>🛡️ Stay safe</div>
+<body class="genderPage">
+  <div class="card genderCard">
+    <div class="genderHeader">
+      <div class="moonLogo">🌗</div>
+      <div>
+        <h1 class="genderTitle">Start Chat</h1>
+        <p class="genderDesc">Choose gender + enter a name. Then we match you instantly.</p>
       </div>
     </div>
 
-    <div class="landingCard">
-      <div class="cardTitle">Quick rules</div>
-      <ul class="ruleList">
-        <li>No harassment</li>
-        <li>No sharing phone/email/address</li>
-        <li>18+ only</li>
-      </ul>
+    <div class="genderGrid" id="genderGrid">
+      <button class="genderBtn" data-g="Male">♂ Male</button>
+      <button class="genderBtn" data-g="Female">♀ Female</button>
+      <button class="genderBtn" data-g="Other">⚧ Other</button>
     </div>
-  </main>
 
-  <footer class="landingFooter">
-    © Chatzi • Be respectful • 18+
-  </footer>
+    <div class="genderActions">
+      <input id="name" class="input nameInput" placeholder="Your name (or leave blank)" maxlength="18" />
+      <button id="go" class="btnPrimary goBtn">Start</button>
+    </div>
+
+    <div class="footerNote">We don’t store chats. Be kind. No personal info.</div>
+  </div>
 
 <script>
-  // simple online counter (not gender-fake matching)
-  const count = Math.floor(600 + Math.random() * 5200);
-  document.getElementById("onlineCount").textContent = count.toLocaleString();
-</script>
+  let selectedGender = "Male";
+  const grid = document.getElementById("genderGrid");
+  const btns = [...grid.querySelectorAll(".genderBtn")];
 
+  function setActive(g){
+    selectedGender = g;
+    btns.forEach(b => b.classList.toggle("active", b.dataset.g === g));
+  }
+  setActive("Male");
+
+  btns.forEach(b => b.addEventListener("click", () => setActive(b.dataset.g)));
+
+  function randName(){
+    const n = Math.floor(Math.random()*9000)+1000;
+    return "user" + n;
+  }
+
+  document.getElementById("go").addEventListener("click", () => {
+    const name = (document.getElementById("name").value || randName()).trim();
+    const url = `chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
+    location.href = url;
+  });
+
+  document.getElementById("name").addEventListener("keydown", (e) => {
+    if(e.key === "Enter") document.getElementById("go").click();
+  });
+</script>
 </body>
 </html>
