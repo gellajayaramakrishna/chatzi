@@ -3,27 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatzi • Gender</title>
+  <title>Chatzi • Choose Gender</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body class="genderPage">
+
   <div class="card genderCard">
     <div class="genderHeader">
       <div class="moonLogo">🌗</div>
       <div>
         <h1 class="genderTitle">Choose Gender</h1>
-        <p class="genderDesc">We generate a random username. No signup.</p>
+        <p class="genderDesc">Anonymous chat. Username is random. No signup.</p>
       </div>
     </div>
 
     <div class="genderGrid" id="genderGrid">
-      <button class="genderBtn active" data-g="Male">♂ Male</button>
-      <button class="genderBtn" data-g="Female">♀ Female</button>
-      <button class="genderBtn" data-g="Other">⚧ Other</button>
+      <button class="genderBtn" type="button" data-g="Male">♂ Male</button>
+      <button class="genderBtn" type="button" data-g="Female">♀ Female</button>
+      <button class="genderBtn" type="button" data-g="Other">⚧ Other</button>
     </div>
 
     <div class="genderActions">
-      <button id="go" class="btnPrimary goBtn" style="width:100%;height:52px;border-radius:16px;">
+      <button id="startChat" class="btnPrimary goBtn" type="button"
+        style="width:100%;height:52px;border-radius:16px;opacity:.6;cursor:not-allowed;" disabled>
         Start Chat
       </button>
     </div>
@@ -32,27 +34,42 @@
   </div>
 
 <script>
-  let selectedGender = "Male";
-  const btns = [...document.querySelectorAll(".genderBtn")];
+  // Ensure NOTHING is pre-selected (even if browser focuses first button)
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
+    if (document.activeElement) document.activeElement.blur();
+  });
 
-  btns.forEach(b=>{
-    b.addEventListener("click", ()=>{
-      selectedGender = b.dataset.g;
-      btns.forEach(x=>x.classList.toggle("active", x===b));
+  let selectedGender = null;
+  const buttons = document.querySelectorAll(".genderBtn");
+  const startBtn = document.getElementById("startChat");
+
+  function randomName(){
+    const animals = ["fox","wolf","otter","lynx","hawk","panda","tiger","bear","eagle"];
+    return animals[Math.floor(Math.random()*animals.length)] + "_" +
+           (Math.floor(Math.random()*9000)+1000);
+  }
+
+  buttons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      buttons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedGender = btn.dataset.g;
+
+      // enable start
+      startBtn.disabled = false;
+      startBtn.style.opacity = "1";
+      startBtn.style.cursor = "pointer";
     });
   });
 
-  function randName(){
-    const animals = ["otter","fox","wolf","tiger","hawk","panda","lynx","eagle","shark","bear"];
-    const a = animals[Math.floor(Math.random()*animals.length)];
-    const n = Math.floor(Math.random()*9000)+1000;
-    return `${a}_${n}`;
-  }
-
-  document.getElementById("go").addEventListener("click", ()=>{
-    const name = randName(); // ALWAYS random
-    location.href = `chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
+  startBtn.addEventListener("click", () => {
+    if(!selectedGender) return;
+    const name = randomName();
+    location.href = "chat.html?name=" + encodeURIComponent(name) +
+                    "&gender=" + encodeURIComponent(selectedGender);
   });
 </script>
+
 </body>
 </html>
