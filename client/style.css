@@ -596,3 +596,169 @@ body.dark .me .msgBubble {
 #startChatBtn:enabled {
   opacity: 1;
 }
+
+/* ===== PREMIUM START PAGE (INDEX) ===== */
+
+.startPage{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:24px;
+  background: linear-gradient(180deg, #fff, #ffe9f1);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.startCard{
+  width: 92%;
+  max-width: 520px;
+  background:#fff;
+  border-radius:24px;
+  padding:28px;
+  box-shadow: 0 18px 40px rgba(255, 105, 180, 0.22);
+  border: 1px solid rgba(255, 105, 180, 0.15);
+}
+
+.brandRow{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+.brandIcon{
+  width:54px;
+  height:54px;
+  border-radius:16px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background: linear-gradient(135deg, #ff5fa2, #ff87c3);
+  color:#fff;
+  font-size:26px;
+  box-shadow: 0 10px 25px rgba(255, 105, 180, 0.25);
+}
+
+.brandName{
+  font-size:22px;
+  font-weight:800;
+  line-height:1.1;
+}
+
+.brandSub{
+  color:#777;
+  font-size:13px;
+  margin-top:2px;
+}
+
+.heroTitle{
+  font-size:34px;
+  font-weight:900;
+  margin: 8px 0 8px;
+  letter-spacing:-0.5px;
+}
+
+.heroDesc{
+  color:#555;
+  line-height:1.5;
+  margin-bottom:18px;
+}
+
+.onlinePill{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#fff5fa;
+  border:1px solid rgba(255,95,162,0.22);
+  padding:12px 14px;
+  border-radius:14px;
+  margin: 10px 0 18px;
+  color:#333;
+  font-weight:600;
+}
+
+.onlinePill .dot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  background:#ff5fa2;
+  box-shadow:0 0 0 6px rgba(255,95,162,0.15);
+}
+
+.genderTitle{
+  font-weight:700;
+  margin: 6px 0 10px;
+}
+
+.genderTitle .req{
+  color:#ff5fa2;
+}
+
+.genderOptions{
+  display:flex;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.genderBtn{
+  flex:1;
+  padding:14px 12px;
+  border-radius:16px;
+  border:2px solid #eee;
+  background:#fafafa;
+  font-size:16px;
+  cursor:pointer;
+  transition: all 0.2s ease;
+}
+
+.genderBtn:hover{
+  border-color:#ff6fae;
+}
+
+.genderBtn.active{
+  background: linear-gradient(135deg, #ff5fa2, #ff87c3);
+  color:#fff;
+  border-color: transparent;
+  box-shadow: 0 12px 26px rgba(255,95,162,0.22);
+}
+
+.ctaBtn{
+  width:100%;
+  padding:15px 16px;
+  border-radius:18px;
+  border:none;
+  background: linear-gradient(135deg, #ff5fa2, #ff87c3);
+  color:#fff;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+  opacity:0.6;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.ctaBtn:enabled{
+  opacity:1;
+}
+
+.ctaBtn:enabled:hover{
+  transform: translateY(-1px);
+}
+
+.miniBadges{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:16px;
+  color:#666;
+  font-weight:600;
+  font-size:13px;
+  padding-top:14px;
+  border-top:1px solid rgba(0,0,0,0.06);
+}
+
+.footerNote{
+  text-align:center;
+  margin-top:16px;
+  color:#888;
+  font-size:12px;
+}

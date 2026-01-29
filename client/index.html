@@ -2,30 +2,71 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-
-  <title>Chatzi — Talk With Strangers Online (Anonymous Chat)</title>
-
-  <meta name="description" content="Chat anonymously with strangers online. Instant random text chat. No signup required. 18+ only." />
-
-  <link rel="canonical" href="https://chatzi.me/" />
-
-  <meta property="og:title" content="Chatzi — Talk With Strangers Online" />
-  <meta property="og:description" content="Anonymous • Instant • No signup — start chatting now." />
-  <meta property="og:url" content="https://chatzi.me/" />
-  <meta property="og:type" content="website" />
-
-  <link rel="stylesheet" href="style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chatzi – Chat with Strangers</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
+<body class="startPage">
 
-<body>
-  <div class="home">
-    <h1>Chat with Strangers</h1>
-    <p>Anonymous • Instant • No signup</p>
+  <div class="startCard">
+    <div class="brandRow">
+      <div class="brandIcon">🦊</div>
+      <div class="brandText">
+        <div class="brandName">Chatzi</div>
+        <div class="brandSub">Anonymous • Instant • No signup</div>
+      </div>
+    </div>
 
-    <a href="start.html" class="startBtn">Start Text Chat</a>
+    <div class="heroTitle">Chat with Strangers</div>
+    <div class="heroDesc">
+      Talk to random people online through anonymous chat.
+      No registration, no personal details — just start chatting.
+    </div>
 
-    <footer>© Chatzi • Be respectful • 18+</footer>
+    <div class="onlinePill">
+      <span class="dot"></span>
+      <span id="onlineCount">—</span> people online now
+    </div>
+
+    <div class="genderTitle">Select your gender <span class="req">*</span></div>
+    <div class="genderOptions">
+      <button class="genderBtn" data-gender="Male">♂ Male</button>
+      <button class="genderBtn" data-gender="Female">♀ Female</button>
+      <button class="genderBtn" data-gender="Other">⚧ Other</button>
+    </div>
+
+    <button id="startChatBtn" class="ctaBtn" disabled>Start Text Chat</button>
+
+    <div class="miniBadges">
+      <div>🔒 Anonymous</div>
+      <div>⚡ Instant</div>
+      <div>💬 Real-time</div>
+    </div>
+
+    <div class="footerNote">© Chatzi • Be respectful • 18+</div>
   </div>
+
+<script>
+  // clean random online count (no fake gender match etc.)
+  const count = Math.floor(800 + Math.random() * 6000);
+  document.getElementById("onlineCount").textContent = count;
+
+  let selectedGender = null;
+
+  document.querySelectorAll(".genderBtn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".genderBtn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedGender = btn.dataset.gender;
+      document.getElementById("startChatBtn").disabled = false;
+    });
+  });
+
+  document.getElementById("startChatBtn").onclick = () => {
+    const name = "user" + Math.floor(Math.random() * 10000);
+    window.location.href = "chat.html?name=" + encodeURIComponent(name) + "&gender=" + encodeURIComponent(selectedGender);
+  };
+</script>
+
 </body>
 </html>
