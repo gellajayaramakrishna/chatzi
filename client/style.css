@@ -1006,3 +1006,19 @@ body.dark .me .msgBubble {
   .landingMain{grid-template-columns:1fr;}
   .hero h1{font-size:36px;}
 }
+
+/* ===== PURPLE THEME OVERRIDE ===== */
+:root{
+  --bg1:#ffffff;
+  --bg2:#f1e9ff;
+
+  --pink:#7c3aed;        /* primary purple */
+  --pink2:#a78bfa;      /* secondary purple */
+
+  --text:#0f0f1a;
+  --muted:#6b6b7a;
+  --card:#ffffff;
+  --border:rgba(124,58,237,0.18);
+
+  --shadow:0 18px 45px rgba(124,58,237,0.22);
+}
