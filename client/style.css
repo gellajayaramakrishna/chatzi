@@ -266,3 +266,59 @@ button,input{font-family:inherit}
   }
 }
 
+
+/* ===== FIX: messages stacking vertically ===== */
+
+/* Force each message row to be its own line */
+.messageRow,
+.msgRow,
+.chatRow,
+.messageWrapper,
+.msgWrapper,
+.chatMessageWrapper,
+.chat-line,
+.chatLine {
+  display: flex !important;
+  width: 100% !important;
+  margin-bottom: 12px !important;
+}
+
+/* Incoming (left) */
+.messageRow.other,
+.msgRow.other,
+.chatRow.other {
+  justify-content: flex-start !important;
+}
+
+/* Outgoing (right) */
+.messageRow.self,
+.msgRow.self,
+.chatRow.self {
+  justify-content: flex-end !important;
+}
+
+/* Bubble stays auto-size */
+.message,
+.msg,
+.bubble,
+.chatBubble,
+.msgBubble {
+  width: fit-content !important;
+  max-width: 70% !important;
+  padding: 10px 14px !important;
+  border-radius: 18px !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .message,
+  .msg,
+  .bubble,
+  .chatBubble,
+  .msgBubble {
+    max-width: 85% !important;
+  }
+}
+
