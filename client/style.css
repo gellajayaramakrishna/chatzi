@@ -1063,3 +1063,45 @@ body.dark .me .msgBubble {
 .brandIconMini{
   display:none !important;
 }
+
+/* ===== GIF PICKER ===== */
+.gifPanel.hidden{
+  display:none;
+}
+
+.gifHeader{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  border-bottom:1px solid rgba(0,0,0,0.1);
+}
+
+.gifHeader input{
+  flex:1;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  font-size:16px;
+}
+
+.gifHeader button{
+  border:none;
+  background:#eee;
+  border-radius:12px;
+  padding:0 14px;
+  font-size:18px;
+}
+
+.gifGrid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap:6px;
+  padding:8px;
+  overflow-y:auto;
+}
+
+.gifGrid img{
+  width:100%;
+  border-radius:10px;
+  cursor:pointer;
+}
