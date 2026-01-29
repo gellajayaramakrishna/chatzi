@@ -132,3 +132,107 @@ newBtn?.addEventListener("click", newChat);
 document.addEventListener("keydown",(e)=>{ if(e.key==="Escape") newChat(); });
 
 connect();
+
+/* =========================
+   HARD RESET MATCH (Skip/New Chat)
+   ========================= */
+
+(function(){
+  // helpers (safe even if ids differ)
+  const $ = (id) => document.getElementById(id);
+
+  // try common containers
+  const messagesBox =
+    $("messages") || $("chatMessages") || $("chatLog") || $("messageList") ||
+    document.querySelector(".messages") || document.querySelector(".chatLog") ||
+    document.querySelector('[id*="message"]') || document.querySelector('[class*="message"]');
+
+  const statusEl =
+    $("status") || $("matchStatus") ||
+    document.querySelector(".status") || document.querySelector(".matchStatus");
+
+  const overlay = $("overlay") || document.querySelector(".overlay");
+
+  function setStatus(txt){
+    if(statusEl) statusEl.textContent = txt;
+  }
+
+  function showOverlay(text){
+    if(!overlay) return;
+    overlay.style.display = "flex";
+    const t = overlay.querySelector(".modalTitle") || overlay.querySelector("h3") || overlay.querySelector("h2");
+    const p = overlay.querySelector(".modalSub") || overlay.querySelector("p");
+    if(t) t.textContent = text || "Finding stranger…";
+    else if(p) p.textContent = text || "Finding stranger…";
+  }
+
+  function hideOverlay(){
+    if(!overlay) return;
+    overlay.style.display = "none";
+  }
+
+  // This MUST exist in your file already (socket). If not, it won't break.
+  const getSocket = () => (typeof socket !== "undefined" ? socket : null);
+
+  // Clear UI
+  function clearChatUI(){
+    if(messagesBox) messagesBox.innerHTML = "";
+    // remove duplicated "Matched ✅ Say hi!" lines if your UI adds them elsewhere
+    document.querySelectorAll(".matchBanner,.matchedLine").forEach(e => e.remove());
+    setStatus("Finding stranger…");
+  }
+
+  // Hard reset match
+  window.hardResetMatch = function hardResetMatch(){
+    clearChatUI();
+    showOverlay("Finding stranger…");
+
+    const s = getSocket();
+    if(s){
+      try { s.emit("leave"); } catch(e){}
+      try { s.emit("skip"); } catch(e){}
+      // ask server for fresh match (your backend may use one of these)
+      try { s.emit("find"); } catch(e){}
+      try { s.emit("findMatch"); } catch(e){}
+      try { s.emit("newChat"); } catch(e){}
+      try { s.emit("joinQueue"); } catch(e){}
+    }
+
+    // fallback: if server events are different, at least reconnect cleanly
+    setTimeout(() => {
+      const s2 = getSocket();
+      if(s2 && !s2.connected){
+        try { s2.connect(); } catch(e){}
+      }
+    }, 300);
+  };
+
+  // Wire New Chat button if present
+  const newChatBtn = $("newChatBtn") || $("newChat") || document.querySelector('button[id*="newChat"]') || document.querySelector('button[class*="newChat"]');
+  if(newChatBtn){
+    newChatBtn.addEventListener("click", (e)=>{
+      e.preventDefault();
+      window.hardResetMatch();
+    });
+  }
+
+  // Wire ESC to skip/reset
+  document.addEventListener("keydown", (e)=>{
+    if(e.key === "Escape"){
+      window.hardResetMatch();
+    }
+  });
+
+  // If your socket tells you when matched, hide overlay (common event names)
+  const s = getSocket();
+  if(s){
+    const hide = ()=>{ hideOverlay(); setStatus("Matched ✅ Say hi!"); };
+    ["matched","matchFound","paired","connectedToPeer"].forEach(ev=>{
+      try { s.on(ev, hide); } catch(e){}
+    });
+    // If partner leaves, reset status
+    ["partnerLeft","peerLeft","disconnectPeer"].forEach(ev=>{
+      try { s.on(ev, ()=>{ setStatus("Partner left. Press New Chat."); }); } catch(e){}
+    });
+  }
+})();
