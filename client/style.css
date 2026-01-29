@@ -373,3 +373,48 @@ button,input{font-family:inherit}
   }
 }
 
+
+/* =========================
+   FIX: Message bubble size + alignment
+   ========================= */
+
+/* chat list container */
+#messages, .messages, .chatMessages, .chatLog, [id*="message"], [class*="messageList"] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* each message row should be full width so left/right works */
+.msg, .message, .msgRow, .bubbleRow, .line, .row, [class*="msg"] {
+  width: 100% !important;
+  display: flex !important;
+  align-items: flex-end !important;
+}
+
+/* right side (your msg) */
+.me, .mine, .self, .out, .sent, [class*="mine"], [class*="me"] {
+  justify-content: flex-end !important;
+}
+
+/* left side (stranger msg) */
+.them, .theirs, .other, .in, .recv, [class*="theirs"], [class*="them"] {
+  justify-content: flex-start !important;
+}
+
+/* the actual bubble should fit text (NOT full width) */
+.bubble, .msgBubble, .messageBubble, .msgText, .textBubble, .content, .body, [class*="bubble"] {
+  width: fit-content !important;
+  max-width: min(70%, 680px) !important;
+  padding: 14px 18px !important;
+  border-radius: 22px !important;
+  word-break: break-word !important;
+  white-space: pre-wrap !important;
+  line-height: 1.35 !important;
+}
+
+/* prevent any "stretch to 100%" bubble styles */
+.bubble *, .msgBubble *, .messageBubble * {
+  max-width: 100% !important;
+}
+
