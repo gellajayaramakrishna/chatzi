@@ -286,3 +286,53 @@ connect();
     }
   });
 })();
+
+/* =========================
+   FIX: Skip/New Chat = always fresh page
+   ========================= */
+(function(){
+  function qp(k){
+    try { return new URLSearchParams(location.search).get(k) || ""; }
+    catch(e){ return ""; }
+  }
+  function randName(){
+    return "user" + Math.floor(1000 + Math.random()*9000);
+  }
+  function getSocket(){
+    try { return (typeof socket !== "undefined") ? socket : null; }
+    catch(e){ return null; }
+  }
+
+  window.hardResetMatch = function(){
+    const s = getSocket();
+    if(s){
+      try { s.emit("skip"); } catch(e){}
+      try { s.emit("leave"); } catch(e){}
+    }
+
+    const gender = qp("gender") || "Male"; // keep selected gender from URL
+    const name = randName();
+    location.replace("chat.html?name=" + encodeURIComponent(name) +
+                     "&gender=" + encodeURIComponent(gender) +
+                     "&r=" + Date.now());
+  };
+
+  // bind New Chat button (common ids)
+  const btn = document.getElementById("newChatBtn")
+          || document.getElementById("newChat")
+          || document.querySelector('button[id*="newChat"]')
+          || document.querySelector('button[class*="newChat"]');
+  if(btn){
+    btn.addEventListener("click", function(e){
+      e.preventDefault();
+      window.hardResetMatch();
+    });
+  }
+
+  // bind ESC
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape"){
+      window.hardResetMatch();
+    }
+  });
+})();
