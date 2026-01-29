@@ -59,10 +59,6 @@ function addMsg(text, mine) {
   messages.scrollTop = messages.scrollHeight;
 }
 
-function setStatus(s) {
-  if (matchStatus) matchStatus.textContent = s;
-}
-
 function connect() {
   showOverlay("Finding your match…", "Connecting to server…", "Cancel");
 
@@ -73,7 +69,8 @@ function connect() {
     timeout: 20000
   });
 
-  socket.on("connect",()=>{ setStatus("Online"); }););
+  socket.on("connect", ()=> setStatus("Online"));
+}););
   });
 
   socket.on("connect_error", (e) => {

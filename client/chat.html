@@ -3,12 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatzi — Chat</title>
-  <link rel="stylesheet" href="/style.css" />
+  <title>Chatzi • Chat</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="fullChatPage">
 
-  <!-- Top bar -->
   <div class="topbar">
     <div class="topLeft">
       <div class="logoMoon">🌗</div>
@@ -18,6 +17,7 @@
     <div class="handleRow">
       <span id="handle">@anonymous</span>
       <span class="greenDot" title="Online"></span>
+      <span id="statusPill" class="statusPill">Connecting…</span>
     </div>
 
     <div class="topRight">
@@ -25,36 +25,30 @@
     </div>
   </div>
 
-  <!-- Info banner -->
-  <div class="infoBanner">
-    ✨ <b>Send messages to your stranger!</b> ✨
-    <span class="infoSmall">Be kind 🤝 · No personal info 🚫 · Stay safe ✅</span>
-    <div class="infoStatus" id="matchStatus">Finding stranger…</div>
-  </div>
+  <div class="chatWrap">
+    <div class="card infoBanner">
+      ✨ Be kind • 🚫 No personal info • ✅ Stay safe
+    </div>
 
-  <!-- Chat area -->
-  <div class="chatWrap premiumChat">
-    <div class="chatBox" id="messages"></div>
-
-    <div class="typing" id="typing" style="opacity:0;">Stranger is typing…</div>
+    <div id="chatBox" class="chatBox"></div>
 
     <div class="composer">
-      <input id="messageInput" class="msgInput" placeholder="Message…" autocomplete="off" />
-      <button id="sendBtn" class="sendBtn">Send ➤</button>
-      <button id="newChatBtn" class="newChatBtn">New Chat</button>
+      <input id="messageInput" class="msgInput input" placeholder="Message…" autocomplete="off" />
+      <button id="sendBtn" class="btnPrimary sendBtn">Send</button>
+      <button id="newChatBtn" class="btnSoft newChatBtn">New Chat</button>
     </div>
   </div>
 
-  <!-- Overlay modal -->
+  <!-- overlay used by script.js (don’t remove) -->
   <div class="overlay" id="overlay" style="display:none;">
     <div class="modal">
-      <div class="modalTitle" id="modalTitle">Finding your match…</div>
-      <div class="modalSub" id="modalSub">Please wait…</div>
-      <button class="modalBtn" id="modalBtn">OK</button>
+      <h3 class="modalTitle" id="modalTitle">Finding match…</h3>
+      <p class="modalSub" id="modalSub">Please wait while we connect you.</p>
+      <button class="btnPrimary modalBtn" id="modalBtn" style="display:none;">OK</button>
     </div>
   </div>
 
-  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="/script.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

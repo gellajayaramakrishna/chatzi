@@ -3,60 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chatzi • Start</title>
+  <title>Chatzi</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="genderPage">
-  <div class="card genderCard">
-    <div class="genderHeader">
-      <div class="moonLogo">🌗</div>
-      <div>
-        <h1 class="genderTitle">Start Chat</h1>
-        <p class="genderDesc">Choose gender + enter a name. Then we match you instantly.</p>
+<body class="startPage">
+  <div class="startWrap">
+    <div class="card hero">
+      <div class="heroTop">
+        <div class="moonLogo">🌗</div>
+        <div>
+          <div class="brandBig">Chatzi</div>
+          <div class="brandSmall">Anonymous • Instant • No signup</div>
+        </div>
+      </div>
+
+      <h1 class="heroTitle">Chat with Strangers</h1>
+      <p class="heroSub">
+        No accounts. No profiles. Just match & chat instantly.
+      </p>
+
+      <div class="pills">
+        <div class="pill">🔒 Anonymous</div>
+        <div class="pill">⚡ Instant match</div>
+        <div class="pill">💬 Real-time</div>
+        <div class="pill">✅ Stay safe</div>
+      </div>
+
+      <div class="footerNote">© Chatzi • 18+</div>
+    </div>
+
+    <div class="card startCTA">
+      <div class="ctaTitle">Start in seconds</div>
+      <div class="ctaSub">Choose gender, then we’ll connect you.</div>
+
+      <button class="btnPrimary bigBtn" onclick="location.href='gender.html'">
+        Start Text Chat
+      </button>
+
+      <div class="ctaSub" style="margin-top:10px">
+        Tip: Press <b>Esc</b> to skip.
       </div>
     </div>
-
-    <div class="genderGrid" id="genderGrid">
-      <button class="genderBtn" data-g="Male">♂ Male</button>
-      <button class="genderBtn" data-g="Female">♀ Female</button>
-      <button class="genderBtn" data-g="Other">⚧ Other</button>
-    </div>
-
-    <div class="genderActions">
-      <input id="name" class="input nameInput" placeholder="Your name (or leave blank)" maxlength="18" />
-      <button id="go" class="btnPrimary goBtn">Start</button>
-    </div>
-
-    <div class="footerNote">We don’t store chats. Be kind. No personal info.</div>
   </div>
-
-<script>
-  let selectedGender = "Male";
-  const grid = document.getElementById("genderGrid");
-  const btns = [...grid.querySelectorAll(".genderBtn")];
-
-  function setActive(g){
-    selectedGender = g;
-    btns.forEach(b => b.classList.toggle("active", b.dataset.g === g));
-  }
-  setActive("Male");
-
-  btns.forEach(b => b.addEventListener("click", () => setActive(b.dataset.g)));
-
-  function randName(){
-    const n = Math.floor(Math.random()*9000)+1000;
-    return "user" + n;
-  }
-
-  document.getElementById("go").addEventListener("click", () => {
-    const name = (document.getElementById("name").value || randName()).trim();
-    const url = `chat.html?name=${encodeURIComponent(name)}&gender=${encodeURIComponent(selectedGender)}`;
-    location.href = url;
-  });
-
-  document.getElementById("name").addEventListener("keydown", (e) => {
-    if(e.key === "Enter") document.getElementById("go").click();
-  });
-</script>
 </body>
 </html>

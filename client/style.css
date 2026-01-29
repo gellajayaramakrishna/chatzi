@@ -1,6 +1,3 @@
-/* =======================
-   GLOBAL / THEME
-   ======================= */
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
@@ -8,51 +5,39 @@ body{
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   color:#0f172a;
   background:
-    radial-gradient(1100px 650px at 15% 0%, rgba(99,102,241,.12), transparent 55%),
-    radial-gradient(900px 600px at 85% 10%, rgba(236,72,153,.10), transparent 55%),
-    radial-gradient(900px 700px at 50% 100%, rgba(34,211,238,.08), transparent 55%),
+    radial-gradient(1100px 650px at 15% 0%, rgba(99,102,241,.10), transparent 55%),
+    radial-gradient(900px 600px at 85% 10%, rgba(236,72,153,.08), transparent 55%),
     linear-gradient(180deg, #fff, #fafafa);
 }
-
-a{color:inherit}
 button,input{font-family:inherit}
 
-/* Reusable: card */
 .card{
-  background: rgba(255,255,255,.80);
+  background: rgba(255,255,255,.85);
   border:1px solid rgba(15,23,42,.08);
   backdrop-filter: blur(12px);
   box-shadow: 0 24px 60px rgba(2,6,23,.08);
   border-radius:22px;
 }
 
-/* Reusable: gradient primary button */
 .btnPrimary{
   border:0;
   cursor:pointer;
-  font-weight:900;
-  letter-spacing:.2px;
+  font-weight:950;
   color:#fff;
   background: linear-gradient(135deg, #6366f1, #ec4899);
-  box-shadow: 0 16px 34px rgba(99,102,241,.22);
+  box-shadow: 0 16px 34px rgba(99,102,241,.20);
   transition: transform .08s ease, filter .15s ease;
 }
 .btnPrimary:hover{filter:brightness(1.03)}
-.btnPrimary:active{transform: translateY(1px)}
+.btnPrimary:active{transform:translateY(1px)}
 
-/* Reusable: soft button */
 .btnSoft{
   border:1px solid rgba(15,23,42,.10);
-  background: rgba(15,23,42,.06);
+  background: rgba(15,23,42,.05);
   cursor:pointer;
-  font-weight:900;
+  font-weight:950;
   color:#0f172a;
-  transition: background .15s ease, transform .08s ease;
 }
-.btnSoft:hover{background: rgba(15,23,42,.08)}
-.btnSoft:active{transform: translateY(1px)}
-
-/* Reusable: input */
 .input{
   border:1px solid rgba(15,23,42,.10);
   background: rgba(255,255,255,.92);
@@ -63,388 +48,156 @@ button,input{font-family:inherit}
   box-shadow: 0 0 0 5px rgba(99,102,241,.12);
 }
 
-/* =======================
-   START PAGE (start.html)
-   ======================= */
-.startPage{
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  padding:22px;
-}
+/* START */
+.startPage{min-height:100vh;display:grid;place-items:center;padding:22px}
+.startWrap{width:min(980px,100%);display:grid;grid-template-columns:1.1fr .9fr;gap:18px}
+@media (max-width:860px){.startWrap{grid-template-columns:1fr}}
 
-.startWrap{
-  width:min(980px, 100%);
-  display:grid;
-  grid-template-columns: 1.1fr .9fr;
-  gap:18px;
-}
-
-@media (max-width: 860px){
-  .startWrap{grid-template-columns:1fr}
-}
-
-.hero{
-  padding:26px;
-}
-.heroTop{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
+.hero{padding:26px}
+.heroTop{display:flex;align-items:center;gap:12px}
 .moonLogo{
-  width:46px;height:46px;
-  border-radius:16px;
-  display:grid;place-items:center;
-  background: linear-gradient(135deg, rgba(99,102,241,.22), rgba(236,72,153,.16));
-  box-shadow: 0 12px 26px rgba(2,6,23,.12);
-  font-size:18px;
+  width:46px;height:46px;border-radius:16px;display:grid;place-items:center;
+  background: linear-gradient(135deg, rgba(99,102,241,.18), rgba(236,72,153,.14));
+  box-shadow: 0 12px 26px rgba(2,6,23,.10);
+  font-size:18px
 }
-.heroTitle{
-  font-size:34px;
-  font-weight:1000;
-  margin:10px 0 6px;
-}
-.heroSub{
-  color:#475569;
-  font-weight:700;
-  line-height:1.5;
-  margin:0;
-}
+.brandBig{font-weight:1000;font-size:16px}
+.brandSmall{font-weight:800;color:#64748b;font-size:12px}
+.heroTitle{font-size:34px;font-weight:1000;margin:12px 0 6px}
+.heroSub{color:#475569;font-weight:750;line-height:1.5;margin:0}
 
-.pills{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-top:16px;
-}
+.pills{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .pill{
-  font-size:12px;
-  font-weight:900;
-  color:#334155;
-  padding:8px 12px;
-  border-radius:999px;
+  font-size:12px;font-weight:900;color:#334155;
+  padding:8px 12px;border-radius:999px;
   border:1px solid rgba(15,23,42,.10);
-  background: rgba(255,255,255,.65);
+  background: rgba(255,255,255,.65)
 }
+.startCTA{padding:26px;display:flex;flex-direction:column;justify-content:center;gap:12px}
+.ctaTitle{font-weight:1000;font-size:16px}
+.ctaSub{color:#475569;font-weight:750;font-size:13px;line-height:1.5}
+.bigBtn{height:52px;border-radius:16px;font-size:15px}
+.footerNote{margin-top:12px;font-size:12px;color:#64748b;font-weight:800}
 
-.startCTA{
-  padding:26px;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:12px;
-}
-.ctaTitle{
-  font-size:16px;
-  font-weight:1000;
-  margin:0;
-}
-.ctaSub{
-  margin:0;
-  color:#475569;
-  font-weight:700;
-  line-height:1.5;
-  font-size:13px;
-}
-.bigBtn{
-  height:52px;
-  border-radius:16px;
-  font-size:15px;
-}
-.footerNote{
-  margin-top:10px;
-  font-size:12px;
-  color:#64748b;
-  font-weight:700;
-}
-
-/* =======================
-   GENDER PAGE (index.html)
-   ======================= */
-.genderPage{
-  min-height:100vh;
-  display:grid;
-  place-items:center;
-  padding:22px;
-}
-.genderCard{
-  width:min(560px, 100%);
-  padding:22px;
-}
-.genderHeader{
-  display:flex;
-  align-items:center;
-  gap:12px;
-}
-.genderTitle{
-  font-size:22px;
-  font-weight:1000;
-  margin:0;
-}
-.genderDesc{
-  margin:6px 0 0;
-  color:#475569;
-  font-weight:700;
-  line-height:1.5;
-  font-size:13px;
-}
-.genderGrid{
-  margin-top:16px;
-  display:grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap:10px;
-}
-@media (max-width: 520px){
-  .genderGrid{grid-template-columns:1fr}
-}
+/* GENDER */
+.genderPage{min-height:100vh;display:grid;place-items:center;padding:22px}
+.genderCard{width:min(560px,100%);padding:22px}
+.genderHeader{display:flex;align-items:center;gap:12px}
+.genderTitle{font-size:22px;font-weight:1000;margin:0}
+.genderDesc{margin:6px 0 0;color:#475569;font-weight:750;line-height:1.5;font-size:13px}
+.genderGrid{margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+@media(max-width:520px){.genderGrid{grid-template-columns:1fr}}
 .genderBtn{
-  height:54px;
-  border-radius:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-size:14px;
-  font-weight:1000;
+  height:54px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  font-size:14px;font-weight:1000;
   border:1px solid rgba(15,23,42,.10);
   background: rgba(255,255,255,.85);
   cursor:pointer;
-  transition: transform .08s ease, box-shadow .15s ease;
+  transition: box-shadow .15s ease, transform .08s ease;
 }
-.genderBtn:hover{
-  box-shadow: 0 16px 30px rgba(2,6,23,.08);
-}
-.genderBtn:active{transform: translateY(1px)}
+.genderBtn:hover{box-shadow:0 16px 30px rgba(2,6,23,.08)}
+.genderBtn:active{transform:translateY(1px)}
 .genderBtn.active{
   border-color: rgba(99,102,241,.45);
   box-shadow: 0 0 0 5px rgba(99,102,241,.12);
 }
-.genderActions{
-  margin-top:14px;
-  display:flex;
-  gap:10px;
-}
-.nameInput{
-  height:46px;
-  border-radius:14px;
-  padding:0 12px;
-  flex:1;
-}
-.goBtn{
-  height:46px;
-  border-radius:14px;
-  padding:0 16px;
-}
+.genderActions{margin-top:14px}
 
-/* =======================
-   CHAT PAGE (chat.html)
-   ======================= */
-.fullChatPage{
-  height:100vh;
-  overflow:hidden; /* IMPORTANT: no scroll to find chat box */
-}
-
-/* Topbar */
-.fullChatPage .topbar{
-  position:sticky;
-  top:0;
-  z-index:10;
-  height:64px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+/* CHAT */
+.fullChatPage{height:100vh;overflow:hidden}
+.topbar{
+  position:sticky;top:0;z-index:10;
+  height:64px;display:flex;align-items:center;justify-content:space-between;
   padding:0 16px;
   background:rgba(255,255,255,.75);
   backdrop-filter: blur(14px);
-  border-bottom:1px solid rgba(15,23,42,.08);
+  border-bottom:1px solid rgba(15,23,42,.08)
 }
-.fullChatPage .topLeft{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:1000;
-}
-.fullChatPage .logoMoon{
-  width:40px;height:40px;
-  display:grid;place-items:center;
-  border-radius:14px;
-  background:linear-gradient(135deg, rgba(99,102,241,.22), rgba(236,72,153,.16));
+.topLeft{display:flex;align-items:center;gap:10px;font-weight:1000}
+.logoMoon{
+  width:40px;height:40px;border-radius:14px;display:grid;place-items:center;
+  background:linear-gradient(135deg, rgba(99,102,241,.18), rgba(236,72,153,.14));
   box-shadow: 0 10px 24px rgba(2,6,23,.10);
-  font-size:18px;
+  font-size:18px
 }
-.fullChatPage .handleRow{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:900;
-  color:#334155;
-}
-.fullChatPage .greenDot{
-  width:10px;height:10px;border-radius:99px;
-  background:#22c55e;
-  box-shadow:0 0 0 5px rgba(34,197,94,.12);
-}
-.fullChatPage .badge{
-  font-size:12px;
-  padding:8px 12px;
-  border-radius:999px;
-  background:rgba(15,23,42,.04);
-  border:1px solid rgba(15,23,42,.08);
-  color:#334155;
-}
-
-/* Info banner (small) */
-.fullChatPage .infoBanner{
-  width:min(1100px, calc(100% - 24px));
-  margin:10px auto 0;
-  padding:10px 12px;
-  border-radius:18px;
-  background:rgba(255,255,255,.72);
-  backdrop-filter: blur(12px);
-  border:1px solid rgba(15,23,42,.08);
-  box-shadow: 0 18px 40px rgba(2,6,23,.06);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  text-align:center;
-}
-.fullChatPage .infoSmall{
-  font-size:12px;
-  font-weight:800;
-  color:#64748b;
-}
-.fullChatPage .statusPill{
-  font-size:12px;
-  font-weight:1000;
-  padding:6px 10px;
-  border-radius:999px;
+.brand{font-weight:1000}
+.handleRow{display:flex;align-items:center;gap:10px;font-weight:900;color:#334155}
+.greenDot{width:10px;height:10px;border-radius:99px;background:#22c55e;box-shadow:0 0 0 5px rgba(34,197,94,.12)}
+.statusPill{
+  font-size:12px;font-weight:1000;padding:6px 10px;border-radius:999px;
   border:1px solid rgba(15,23,42,.10);
-  background: rgba(15,23,42,.04);
-  color:#334155;
+  background: rgba(15,23,42,.04);color:#334155
+}
+.badge{
+  font-size:12px;padding:8px 12px;border-radius:999px;
+  background:rgba(15,23,42,.04);
+  border:1px solid rgba(15,23,42,.08);color:#334155
 }
 
-/* Chat layout: fills remaining height */
-.fullChatPage .chatWrap{
+.chatWrap{
   width:min(1100px, calc(100% - 24px));
   margin:10px auto 12px;
-  height: calc(100vh - 64px - 54px - 22px); /* topbar + infoBanner + margins */
-  display:flex;
-  flex-direction:column;
-  gap:10px;
+  height: calc(100vh - 64px - 22px);
+  display:flex;flex-direction:column;gap:10px;
 }
+.infoBanner{padding:10px 12px;text-align:center;font-weight:850;color:#64748b}
 
-/* Messages */
-.fullChatPage .chatBox{
-  flex:1;
-  overflow:auto;
-  padding:16px 14px;
-  border-radius:22px;
+.chatBox{
+  flex:1;overflow:auto;
+  padding:16px 14px;border-radius:22px;
   background:rgba(255,255,255,.70);
   backdrop-filter: blur(12px);
   border:1px solid rgba(15,23,42,.08);
   box-shadow: 0 24px 60px rgba(2,6,23,.07);
 }
 
-/* Bubbles */
-.fullChatPage .msg{
-  max-width:min(78%, 680px);
-  padding:12px 14px;
-  border-radius:16px;
-  margin:10px 0;
+.msg{
+  max-width:min(78%,680px);
+  padding:12px 14px;border-radius:16px;margin:10px 0;
   background:rgba(15,23,42,.04);
   border:1px solid rgba(15,23,42,.08);
-  color:#0f172a;
-  line-height:1.35;
-  font-size:14px;
-  word-wrap:break-word;
-  white-space:pre-wrap;
+  color:#0f172a;line-height:1.35;font-size:14px;
+  white-space:pre-wrap;word-wrap:break-word
 }
-.fullChatPage .msg.mine{
+.msg.mine{
   margin-left:auto;
-  background:linear-gradient(135deg, rgba(99,102,241,.18), rgba(236,72,153,.14));
-  border:1px solid rgba(99,102,241,.22);
+  background:linear-gradient(135deg, rgba(99,102,241,.16), rgba(236,72,153,.12));
+  border:1px solid rgba(99,102,241,.20)
 }
-.fullChatPage .sys{
-  text-align:center;
-  font-size:12px;
-  color:#64748b;
-  padding:8px 8px;
-  margin:10px 0;
-}
+.sys{text-align:center;font-size:12px;color:#64748b;padding:8px 8px;margin:10px 0}
 
-/* Composer */
-.fullChatPage .composer{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  padding:12px;
-  border-radius:18px;
+.composer{
+  display:flex;gap:10px;align-items:center;
+  padding:12px;border-radius:18px;
   background:rgba(255,255,255,.75);
   backdrop-filter: blur(12px);
   border:1px solid rgba(15,23,42,.08);
   box-shadow: 0 18px 50px rgba(2,6,23,.06);
 }
-.fullChatPage .msgInput{
-  flex:1;
-  height:46px;
-  border-radius:14px;
-  border:1px solid rgba(15,23,42,.10);
-  background:rgba(255,255,255,.92);
-  padding:0 14px;
-  outline:none;
-  font-size:14px;
+.msgInput{
+  flex:1;height:46px;border-radius:14px;
+  padding:0 14px;font-size:14px
 }
-.fullChatPage .msgInput:focus{
-  border-color: rgba(99,102,241,.45);
-  box-shadow: 0 0 0 5px rgba(99,102,241,.12);
-}
-.fullChatPage .sendBtn{
-  height:46px;
-  padding:0 18px;
-  border-radius:14px;
-}
-.fullChatPage .newChatBtn{
-  height:46px;
-  padding:0 14px;
-  border-radius:14px;
-}
+.sendBtn,.newChatBtn{height:46px;border-radius:14px;padding:0 16px}
 
-/* Overlay */
-.fullChatPage .overlay{
-  position:fixed; inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background: rgba(2,6,23,.45);
-  backdrop-filter: blur(8px);
-  z-index:50;
+.overlay{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(2,6,23,.45);backdrop-filter: blur(8px);z-index:50
 }
-.fullChatPage .modal{
+.modal{
   width:min(520px, calc(100vw - 32px));
-  border-radius:22px;
-  padding:18px;
-  background: rgba(255,255,255,.92);
+  border-radius:22px;padding:18px;background:rgba(255,255,255,.92);
   border:1px solid rgba(15,23,42,.10);
-  box-shadow: 0 30px 80px rgba(2,6,23,.25);
-  text-align:center;
+  box-shadow:0 30px 80px rgba(2,6,23,.25);
+  text-align:center
 }
-.fullChatPage .modalTitle{font-weight:1000;font-size:18px;margin:0}
-.fullChatPage .modalSub{margin:8px 0 0;color:#475569;font-weight:700;font-size:13px}
-.fullChatPage .modalBtn{
-  margin-top:14px;
-  height:44px;
-  border-radius:14px;
-}
+.modalTitle{font-weight:1000;font-size:18px;margin:0}
+.modalSub{margin:8px 0 0;color:#475569;font-weight:750;font-size:13px}
+.modalBtn{margin-top:14px;height:44px;border-radius:14px;padding:0 16px}
 
-/* Mobile */
-@media (max-width: 700px){
-  .fullChatPage .badge{display:none}
-  .fullChatPage .chatWrap{
-    width: calc(100% - 16px);
-    margin:8px auto 10px;
-    height: calc(100vh - 64px - 58px - 18px);
-  }
-  .fullChatPage .msg{max-width: 88%}
+@media(max-width:700px){
+  .badge{display:none}
+  .chatWrap{width:calc(100% - 16px);margin:8px auto 10px;height:calc(100vh - 64px - 18px)}
+  .msg{max-width:88%}
 }
