@@ -2,209 +2,161 @@ const express = require("express");
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");
-const path = require("path");
 
 const app = express();
 app.use(express.json());
 
-// ---- CORS ----
-// Allow your domains + localhost + all vercel preview domains
-const allowedExact = new Set([
+// ✅ Add all your frontend domains here
+const ALLOWED_ORIGINS = [
   "https://chatzi.me",
   "https://www.chatzi.me",
   "https://chatzi.vercel.app",
   "http://localhost:3000",
-  "http://127.0.0.1:3000"
-]);
+  "http://127.0.0.1:3000",
+];
 
-function isAllowed(origin) {
-  if (!origin) return true; // allow curl/postman/null
-  if (allowedExact.has(origin)) return true;
-  if (origin.endsWith(".vercel.app")) return true;
-  return false;
-}
+// CORS for REST
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      // allow no-origin (curl, server-to-server)
+      if (!origin) return cb(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
+      return cb(new Error("CORS blocked: " + origin));
+    },
+    credentials: true,
+  })
+);
 
-app.use(cors({
-  origin: (origin, cb) => {
-    if (isAllowed(origin)) return cb(null, true);
-    return cb(new Error("CORS blocked: " + origin));
-  },
-  credentials: true
-}));
-
-// Health + root endpoints (so Render doesn't show "Cannot GET /")
-app.get("/", (req, res) => res.json({ ok: true, service: "chatzi-backend" }));
-app.get("/health", (req, res) => res.json({ ok: true }));
-
-// Local dev: serve client static if exists (optional)
-const clientDir = path.join(__dirname, "..", "client");
-app.use(express.static(clientDir));
-
-// If a client file exists, allow /start.html etc in local dev
-app.get("/:file(start.html|chat.html|index.html)", (req, res) => {
-  res.sendFile(path.join(clientDir, req.params.file));
-});
+app.get("/", (req, res) => res.send("Chatzi backend is running ✅"));
+app.get("/health", (req, res) => res.json({ ok: true, ts: Date.now() }));
 
 const server = http.createServer(app);
 
+// ✅ Socket.IO with CORS
 const io = new Server(server, {
   cors: {
     origin: (origin, cb) => {
-      if (isAllowed(origin)) return cb(null, true);
+      if (!origin) return cb(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) return cb(null, true);
       return cb(new Error("CORS blocked: " + origin));
     },
-    credentials: true
+    credentials: true,
   },
-  transports: ["websocket", "polling"]
+  transports: ["polling", "websocket"], // important for Render + mobile
 });
 
-// ---- Matchmaking ----
-const waiting = []; // queue of sockets waiting to match
-const userInfo = new Map(); // socket.id -> {name, gender, room, partnerId}
+// ---- Matchmaking (simple + reliable) ----
+const waiting = []; // { id, name, gender, ts }
+const userInfo = new Map(); // socket.id -> {name, gender, roomId}
 
-function removeFromQueue(id) {
-  const idx = waiting.findIndex(sid => sid === id);
-  if (idx >= 0) waiting.splice(idx, 1);
+function removeWaiting(id) {
+  const idx = waiting.findIndex((x) => x.id === id);
+  if (idx !== -1) waiting.splice(idx, 1);
+}
+
+function makeRoomId(a, b) {
+  return "room_" + [a, b].sort().join("_");
 }
 
 function tryMatch() {
-  while (waiting.length >= 2) {
-    const a = waiting.shift();
-    const b = waiting.shift();
-    if (!io.sockets.sockets.get(a) || !io.sockets.sockets.get(b)) continue;
+  // match first two waiting
+  if (waiting.length < 2) return;
 
-    const room = `room_${a.slice(0,5)}_${b.slice(0,5)}_${Date.now()}`;
+  const a = waiting.shift();
+  const b = waiting.shift();
 
-    const A = userInfo.get(a);
-    const B = userInfo.get(b);
-    if (!A || !B) continue;
+  const roomId = makeRoomId(a.id, b.id);
 
-    A.room = room; B.room = room;
-    A.partnerId = b; B.partnerId = a;
+  const sa = io.sockets.sockets.get(a.id);
+  const sb = io.sockets.sockets.get(b.id);
+  if (!sa || !sb) return;
 
-    const sockA = io.sockets.sockets.get(a);
-    const sockB = io.sockets.sockets.get(b);
+  sa.join(roomId);
+  sb.join(roomId);
 
-    sockA.join(room);
-    sockB.join(room);
+  userInfo.set(a.id, { ...(userInfo.get(a.id) || {}), roomId });
+  userInfo.set(b.id, { ...(userInfo.get(b.id) || {}), roomId });
 
-    sockA.emit("matched", {
-      room,
-      partnerName: B.name,
-      partnerGender: B.gender
-    });
-
-    sockB.emit("matched", {
-      room,
-      partnerName: A.name,
-      partnerGender: A.gender
-    });
-  }
+  sa.emit("matched", { roomId, partner: { name: b.name, gender: b.gender } });
+  sb.emit("matched", { roomId, partner: { name: a.name, gender: a.gender } });
 }
 
-function broadcastOnlineCount() {
-  io.emit("online_count", io.engine.clientsCount);
+function onlineCount() {
+  return io.engine.clientsCount || 0;
 }
 
-// ---- Socket events ----
 io.on("connection", (socket) => {
-  broadcastOnlineCount();
+  socket.emit("online", { count: onlineCount() });
+  socket.broadcast.emit("online", { count: onlineCount() });
 
   socket.on("join", ({ name, gender }) => {
-    userInfo.set(socket.id, {
-      name: String(name || "anonymous").slice(0, 40),
-      gender: String(gender || "Other").slice(0, 20),
-      room: null,
-      partnerId: null
+    name = (name || "user").toString().slice(0, 30);
+    gender = (gender || "Other").toString().slice(0, 15);
+
+    userInfo.set(socket.id, { name, gender, roomId: null });
+
+    // remove old waiting (safety) and add fresh
+    removeWaiting(socket.id);
+    waiting.push({ id: socket.id, name, gender, ts: Date.now() });
+
+    socket.emit("finding");
+    tryMatch();
+  });
+
+  socket.on("message", ({ roomId, text }) => {
+    const info = userInfo.get(socket.id);
+    if (!info || !info.roomId || info.roomId !== roomId) return;
+
+    text = (text || "").toString();
+    if (!text.trim()) return;
+    if (text.length > 1000) text = text.slice(0, 1000);
+
+    io.to(roomId).emit("message", {
+      from: socket.id,
+      text,
+      ts: Date.now(),
     });
-
-    removeFromQueue(socket.id);
-    waiting.push(socket.id);
-    tryMatch();
   });
 
-  socket.on("new_chat", () => {
-    const me = userInfo.get(socket.id);
-    if (!me) return;
+  socket.on("typing", ({ roomId }) => {
+    const info = userInfo.get(socket.id);
+    if (!info || !info.roomId || info.roomId !== roomId) return;
+    socket.to(roomId).emit("typing");
+  });
 
-    // If in a room, notify partner and leave
-    if (me.room && me.partnerId) {
-      const partner = io.sockets.sockets.get(me.partnerId);
-      if (partner) partner.emit("partner_left");
-      socket.leave(me.room);
-
-      // cleanup partner info too
-      const pInfo = userInfo.get(me.partnerId);
-      if (pInfo) {
-        pInfo.room = null;
-        pInfo.partnerId = null;
-        removeFromQueue(me.partnerId);
-        waiting.push(me.partnerId);
-      }
+  socket.on("skip", () => {
+    const info = userInfo.get(socket.id);
+    if (info?.roomId) {
+      socket.to(info.roomId).emit("partner_left");
+      socket.leave(info.roomId);
+      userInfo.set(socket.id, { ...info, roomId: null });
     }
+    removeWaiting(socket.id);
 
-    me.room = null;
-    me.partnerId = null;
-
-    removeFromQueue(socket.id);
-    waiting.push(socket.id);
-    tryMatch();
-  });
-
-  socket.on("message", (payload) => {
-    const me = userInfo.get(socket.id);
-    if (!me || !me.room) return;
-
-    const msg = payload || {};
-    const type = msg.type === "gif" ? "gif" : "text";
-
-    if (type === "gif") {
-      const url = String(msg.url || "").slice(0, 600);
-      if (!url) return;
-      socket.to(me.room).emit("message", { type: "gif", url, from: socket.id });
-      return;
+    // re-join queue using stored info
+    const u = userInfo.get(socket.id);
+    if (u) {
+      waiting.push({ id: socket.id, name: u.name, gender: u.gender, ts: Date.now() });
+      socket.emit("finding");
+      tryMatch();
     }
-
-    const text = String(msg.text || "").slice(0, 1200);
-    if (!text) return;
-    socket.to(me.room).emit("message", { type: "text", text, from: socket.id });
-  });
-
-  socket.on("typing", () => {
-    const me = userInfo.get(socket.id);
-    if (!me || !me.room) return;
-    socket.to(me.room).emit("typing");
   });
 
   socket.on("disconnect", () => {
-    const me = userInfo.get(socket.id);
+    removeWaiting(socket.id);
 
-    removeFromQueue(socket.id);
-
-    if (me && me.room && me.partnerId) {
-      const partner = io.sockets.sockets.get(me.partnerId);
-      if (partner) {
-        partner.emit("partner_left");
-        const pInfo = userInfo.get(me.partnerId);
-        if (pInfo) {
-          pInfo.room = null;
-          pInfo.partnerId = null;
-          removeFromQueue(me.partnerId);
-          waiting.push(me.partnerId);
-          tryMatch();
-        }
-      }
+    const info = userInfo.get(socket.id);
+    if (info?.roomId) {
+      socket.to(info.roomId).emit("partner_left");
     }
-
     userInfo.delete(socket.id);
-    broadcastOnlineCount();
+
+    io.emit("online", { count: onlineCount() });
   });
 });
 
-// Periodic count updates
-setInterval(broadcastOnlineCount, 3000);
-
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 server.listen(PORT, () => {
-  console.log("Chatzi backend running on port", PORT);
+  console.log("✅ Chatzi backend listening on", PORT);
 });

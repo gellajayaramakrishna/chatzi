@@ -1,399 +1,193 @@
-// ---- Chatzi safety helpers (auto-added) ----
-function safeOn(el, ev, fn) { if (el) el.addEventListener(ev, fn); }
-function safeQS(sel) { return document.querySelector(sel); }
-function safeID(id) { return document.getElementById(id); }
-// -------------------------------------------
+/* Chatzi client script (stable matchmaking build) */
 
-document.addEventListener("gesturestart", function(e){ e.preventDefault(); });
-
-/* ===========================
-   Chatzi client script
-   - socket matchmaking
-   - typing indicator
-   - gif by URL
-   - ESC skip
-=========================== */
-
-function getParam(key) {
-  const u = new URL(window.location.href);
-  return u.searchParams.get(key) || "";
+// ---------- Helpers ----------
+const $ = (id) => document.getElementById(id);
+function qs(name) {
+  const url = new URL(location.href);
+  return url.searchParams.get(name);
 }
-
-const name = getParam("name") || "anonymous";
-const gender = getParam("gender") || "Other";
-
-const myHandleEl = document.getElementById("myHandle");
-const onlinePill = document.getElementById("onlinePill");
-const statusLine = document.getElementById("statusLine");
-
-const chatBox = document.getElementById("chatBox");
-const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
-const newChatBtn = document.getElementById("newChatBtn");
-
-const typingLine = document.getElementById("typingLine");
-const chipsRow = document.getElementById("chipsRow");
-
-const overlay = document.getElementById("overlay");
-const gifBtn = document.getElementById("gifBtn");
-const gifUrl = document.getElementById("gifUrl");
-const gifCancel = document.getElementById("gifCancel");
-const gifSend = document.getElementById("gifSend");
-
-myHandleEl.textContent = "@"+name;
-
-function backendURL() {
-  // Local dev
-  if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-    return "http://localhost:3000";
-  }
-  // Production backend on Render
-  return "https://chatzi-backend.onrender.com";
-}
-
-const BACKEND = backendURL();
-
-const socket = io(BACKEND, {
-  transports: ["websocket", "polling"],
-  withCredentials: true,
-});
-
-let myRoom = null;
-let matched = false;
-let typingTimer = null;
-
-function setStatus(txt) {
-  statusLine.textContent = txt;
-}
-
-function addMessage(side, html, meta = "") {
-  const row = document.createElement("div");
-  row.className = "msgRow " + side;
-
-  const bubble = document.createElement("div");
-  bubble.className = "msgBubble";
-  bubble.innerHTML = html;
-
-  row.appendChild(bubble);
-
-  if (meta) {
-    const m = document.createElement("div");
-    m.className = "meta";
-    m.textContent = meta;
-    bubble.appendChild(m);
-  }
-
-  chatBox.appendChild(row);
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function escapeHTML(s) {
-  return s.replace(/[&<>"']/g, (c) => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+function escapeHtml(s) {
+  return (s || "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
 }
 
-/* ---------- Join / Match ---------- */
-socket.on("connect", () => {
-  setStatus("Finding stranger…");
-  socket.emit("join", { name, gender });
-});
+// ---------- Backend URL ----------
+const BACKEND_URL = "https://chatzi-backend.onrender.com";
 
-socket.on("disconnect", () => {
-  matched = false;
-  myRoom = null;
-  setStatus("Disconnected. Retrying…");
-});
+// ---------- Page Elements (safe) ----------
+const overlay = $("overlay");
+const modalTitle = $("modalTitle");
+const modalSub = $("modalSub");
+const modalBtn = $("modalBtn");
 
-socket.on("online_count", (n) => {
-  if (typeof n === "number") onlinePill.textContent = `${n} online`;
-});
+const messages = $("messages");
+const messageInput = $("messageInput");
+const sendBtn = $("sendBtn");
+const newChatBtn = $("newChatBtn");
+const handleEl = $("handle");
 
-socket.on("matched", (payload) => {
-  matched = true;
-  myRoom = payload?.room || null;
-  const partner = payload?.partnerName || "stranger";
-  const partnerGender = payload?.partnerGender || "Other";
+// typing
+const typingEl = $("typing");
 
-  setStatus(`Connected to @${partner} (${partnerGender}) ✅`);
-  addMessage("them", `<b>Connected!</b> Say hi to your stranger.`, "");
-});
+// GIF UI (optional, won't break if missing)
+const gifBtn = $("gifBtn");
+const gifPanel = $("gifPanel");
+const gifGrid = $("gifGrid");
+const gifSearch = $("gifSearch");
+const closeGif = $("closeGif");
+const GIF_UI_OK = !!(gifBtn && gifPanel && gifGrid && gifSearch && closeGif);
 
-socket.on("partner_left", () => {
-  matched = false;
-  myRoom = null;
-  typingLine.style.display = "none";
-  setStatus("Stranger left. Press New Chat (or Esc) to find someone else.");
-  addMessage("them", `<b>Stranger left the chat.</b>`, "");
-});
+// ---------- State ----------
+let socket = null;
+let roomId = null;
+let myName = qs("name") || "user";
+let myGender = qs("gender") || "Other";
+let matched = false;
 
-socket.on("message", (msg) => {
-  // msg: { type, text, url, from }
-  if (soundEnabled) popSound.play().catch(()=>{});
-  if (!msg) return;
-
-  if (msg.type === "gif" && msg.url) {
-    const safe = escapeHTML(msg.url);
-    addMessage("them", `<div><img src="${safe}" alt="gif" style="max-width:260px;border-radius:12px;border:1px solid rgba(0,0,0,.08)"/></div>`);
-    return;
-  }
-
-  const text = escapeHTML(msg.text || "");
-  addMessage("them", text);
-});
-
-/* ---------- Typing ---------- */
-socket.on("typing", () => {
-  typingLine.style.display = "block";
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => {
-    typingLine.style.display = "none";
-  }, 1200);
-});
-
-function emitTyping() {
-  if (!socket.connected || !matched) return;
-  socket.emit("typing");
+function showOverlay(title, sub, buttonText = "Cancel") {
+  if (!overlay) return;
+  overlay.style.display = "flex";
+  if (modalTitle) modalTitle.textContent = title;
+  if (modalSub) modalSub.textContent = sub || "";
+  if (modalBtn) modalBtn.textContent = buttonText;
+}
+function hideOverlay() {
+  if (!overlay) return;
+  overlay.style.display = "none";
+}
+function addSystem(msg) {
+  if (!messages) return;
+  const div = document.createElement("div");
+  div.className = "sys";
+  div.innerHTML = escapeHtml(msg);
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+function addMsg(text, mine) {
+  if (!messages) return;
+  const div = document.createElement("div");
+  div.className = mine ? "msg mine" : "msg";
+  div.innerHTML = escapeHtml(text);
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
 }
 
-/* ---------- Send message ---------- */
-function sendText() {
-  const text = (messageInput.value || "").trim();
+// ---------- Socket ----------
+function connectSocket() {
+  addSystem("Connecting to server...");
+  showOverlay("Finding your match...", "Please wait while we connect you.", "Cancel");
+
+  socket = io(BACKEND_URL, {
+    transports: ["polling", "websocket"],
+    reconnection: true,
+    reconnectionAttempts: 20,
+    timeout: 20000,
+  });
+
+  socket.on("connect", () => {
+    addSystem("Connected ✅");
+    if (handleEl) handleEl.textContent = "@user";
+    socket.emit("join", { name: myName, gender: myGender });
+  });
+
+  socket.on("connect_error", (e) => {
+    addSystem("Connect error: " + (e?.message || "unknown"));
+    showOverlay("Server not reachable", "Tap New Chat to retry.", "OK");
+  });
+
+  socket.on("finding", () => {
+    matched = false;
+    roomId = null;
+    showOverlay("Finding your match...", "Please wait while we connect you.", "Cancel");
+  });
+
+  socket.on("matched", (data) => {
+    matched = true;
+    roomId = data.roomId;
+    hideOverlay();
+    const partner = data.partner?.name ? data.partner.name : "stranger";
+    addSystem("Matched with " + partner + " ✅");
+  });
+
+  socket.on("partner_left", () => {
+    matched = false;
+    roomId = null;
+    addSystem("Stranger left the chat.");
+    showOverlay("Stranger left", "Press New Chat to find someone else.", "OK");
+  });
+
+  socket.on("message", (m) => {
+    const mine = m.from === socket.id;
+    addMsg(m.text, mine);
+  });
+
+  socket.on("typing", () => {
+    if (!typingEl) return;
+    typingEl.style.opacity = "1";
+    typingEl.textContent = "Stranger is typing…";
+    setTimeout(() => {
+      typingEl.style.opacity = "0";
+    }, 900);
+  });
+}
+
+function sendMessage() {
+  const text = (messageInput?.value || "").trim();
   if (!text) return;
 
-  if (!matched) {
-    addMessage("me", escapeHTML(text), "Not connected yet");
-    messageInput.value = "";
+  if (!socket || !socket.connected || !matched || !roomId) {
+    addSystem("Not connected / not matched yet.");
     return;
   }
 
-  socket.emit("message", { type: "text", text });
-  addMessage("me", escapeHTML(text));
+  socket.emit("message", { roomId, text });
   messageInput.value = "";
 }
 
-sendBtn.addEventListener("click", sendText);
-
-messageInput.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") sendText();
-});
-
-messageInput.addEventListener("input", () => {
-  emitTyping();
-});
-
-/* ---------- Chips ---------- */
-chipsRow.querySelectorAll(".chip").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    messageInput.value = btn.textContent.trim();
-    messageInput.focus();
-    emitTyping();
-  });
-});
-
-/* ---------- New chat / Skip ---------- */
-function newChat() {
-  typingLine.style.display = "none";
-  setStatus("Finding stranger…");
-  socket.emit("new_chat");
+// typing emit (throttled)
+let typingTimer = null;
+function onTyping() {
+  if (!socket || !socket.connected || !roomId) return;
+  if (typingTimer) return;
+  typingTimer = setTimeout(() => (typingTimer = null), 350);
+  socket.emit("typing", { roomId });
 }
 
-newChatBtn.addEventListener("click", newChat);
+// Skip / New Chat
+function newChat() {
+  if (!socket) return;
+  socket.emit("skip");
+}
 
-window.addEventListener("keydown", (e) => {
+// ---------- Events ----------
+if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+if (messageInput) {
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+  messageInput.addEventListener("input", onTyping);
+}
+if (newChatBtn) newChatBtn.addEventListener("click", newChat);
+
+document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") newChat();
 });
 
-/* ---------- GIF modal ---------- */
+// Modal cancel
+if (modalBtn) modalBtn.addEventListener("click", () => {
+  hideOverlay();
+});
+
+// ---------- GIF (optional safe) ----------
 if (GIF_UI_OK) {
-  safeOn(gifBtn, "click", () => {
-  overlay.style.display = "flex";
-  gifUrl.value = "";
-  gifUrl.focus();
-});
-
-gifCancel.addEventListener("click", () => {
-  overlay.style.display = "none";
-});
-
-gifSend.addEventListener("click", () => {
-  const url = (gifUrl.value || "").trim();
-  if (!url) return;
-
-  if (!matched) {
-    overlay.style.display = "none";
-    addMessage("me", `GIF not sent (not connected).`);
-    return;
-  }
-
-  // basic check
-  const ok = url.includes(".gif");
-  if (!ok) {
-    addMessage("me", "Please paste a direct .gif URL.");
-    return;
-  }
-
-  socket.emit("message", { type: "gif", url });
-  addMessage("me", `<div><img src="${escapeHTML(url)}" alt="gif" style="max-width:260px;border-radius:12px;border:1px solid rgba(0,0,0,.08)"/></div>`);
-  overlay.style.display = "none";
-});
-
-/* Safety button */
-document.getElementById("helpBtn").addEventListener("click", () => {
-  alert("Safety tips:\n\n• Don’t share phone/email/address\n• Don’t send money\n• If uncomfortable, press Esc to skip\n• Be respectful ✅");
-});
-
-/* ===== Message Sound ===== */
-const soundBtn = document.getElementById("soundBtn");
-let soundEnabled = localStorage.getItem("sound") !== "off";
-
-const popSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-message-pop-alert-2354.mp3");
-
-function updateSoundIcon() {
-  soundBtn.textContent = soundEnabled ? "🔊" : "🔇";
-}
-updateSoundIcon();
-
-soundBtn.addEventListener("click", () => {
-  soundEnabled = !soundEnabled;
-  localStorage.setItem("sound", soundEnabled ? "on" : "off");
-  updateSoundIcon();
-});
-
-/* ===== Dark Mode ===== */
-const themeBtn = document.getElementById("themeBtn");
-const savedTheme = localStorage.getItem("theme");
-
-if (savedTheme === "dark") document.body.classList.add("dark");
-
-function updateThemeIcon() {
-  themeBtn.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
-}
-updateThemeIcon();
-
-themeBtn.addEventListener("click", () => {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
-  updateThemeIcon();
-});
-
-/* ===== GIF PICKER (TENOR) ===== */
-
-const TENOR_KEY = "LIVDSRZULELA"; // public demo key
-const gifBtn = document.getElementById("gifBtn");
-const gifPanel = document.getElementById("gifPanel");
-const gifGrid = document.getElementById("gifGrid");
-const gifSearch = document.getElementById("gifSearch");
-const closeGif = document.getElementById("closeGif");
-
-if (GIF_UI_OK) {
-  safeOn(gifBtn, "click", () => {
-  gifPanel.classList.toggle("hidden");
-  loadTrendingGifs();
-});
-
-  safeOn(closeGif, "click", () => {
-  gifPanel.classList.add("hidden");
-});
-
-function loadTrendingGifs(){
-  fetch(`https://g.tenor.com/v1/trending?key=${TENOR_KEY}&limit=20`)
-    .then(res => res.json())
-    .then(data => renderGifs(data.results));
-}
-
-  safeOn(gifSearch, "input", () => {
-  const q = gifSearch.value.trim();
-  if(!q) return loadTrendingGifs();
-
-  fetch(`https://g.tenor.com/v1/search?q=${encodeURIComponent(q)}&key=${TENOR_KEY}&limit=20`)
-    .then(res => res.json())
-    .then(data => renderGifs(data.results));
-});
-
-function renderGifs(gifs){
-  gifGrid.innerHTML = "";
-  gifs.forEach(g => {
-    const url = g.media[0].tinygif.url;
-    const img = document.createElement("img");
-    img.src = url;
-    img.onclick = () => {
-      socket.emit("message", { type:"gif", url });
-      addMessage("me", `<img src="${url}" />`, true);
-      gifPanel.classList.add("hidden");
-    };
-    gifGrid.appendChild(img);
+  gifBtn.addEventListener("click", () => {
+    gifPanel.style.display = "block";
+  });
+  closeGif.addEventListener("click", () => {
+    gifPanel.style.display = "none";
   });
 }
 
-/* ===== OVERRIDE MESSAGE HANDLER (TEXT + GIF) ===== */
-if (typeof socket !== "undefined" && socket) {
-  // Remove any previous message listeners to avoid duplicates
-  socket.off("message");
-
-  socket.on("message", (data) => {
-    try {
-      // GIF message format: { type:"gif", url:"..." }
-      if (data && typeof data === "object" && data.type === "gif" && data.url) {
-        const html = `<img src="${data.url}" style="max-width:220px;border-radius:12px;display:block;" />`;
-        if (typeof addMessage === "function") {
-          // if your addMessage supports HTML flag, it will ignore extra arg if not needed
-          addMessage("them", html, true);
-        }
-        return;
-      }
-
-      // Text formats:
-      // - "hello"
-      // - { text: "hello" }
-      const text = (typeof data === "string") ? data : (data && data.text ? data.text : "");
-      if (!text) return;
-
-      if (typeof addMessage === "function") addMessage("them", text);
-    } catch (e) {
-      // ignore
-    }
-  });
-}
-}
-
-
-
-/* ===== MATCH FIX (RESTORE STRANGER CONNECTION) ===== */
-if (typeof socket !== "undefined" && socket) {
-
-  socket.off("matched");
-  socket.on("matched", (data) => {
-    try {
-      console.log("Matched with stranger:", data);
-
-      if (typeof onMatched === "function") {
-        onMatched(data);
-      }
-
-      const statusEl = document.getElementById("statusLine");
-      if (statusEl) statusEl.textContent = "Connected to stranger";
-
-    } catch (e) {
-      console.error("Match handler error", e);
-    }
-  });
-
-}
-
-/* ===== FALLBACK MATCH HANDLER ===== */
-if (typeof onMatched !== "function") {
-  function onMatched() {
-    const statusEl = document.getElementById("statusLine");
-    if (statusEl) statusEl.textContent = "Connected";
-  }
-}
-
-/* ===== GIF GUARD (PREVENT CHAT BREAK) ===== */
-function withGifUI(fn){
-  try{
-    if (typeof GIF_UI_OK !== "undefined" && GIF_UI_OK) fn();
-  }catch(e){
-    console.warn("GIF UI disabled due to error:", e);
-  }
-}
+// ---------- Start ----------
+connectSocket();
