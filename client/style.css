@@ -1049,3 +1049,17 @@ body.dark .me .msgBubble {
   font-size: 20px;
   border-radius: 12px;
 }
+
+/* ===== EMOJI LOGO ONLY ===== */
+
+.emojiLogo{
+  font-size: 32px;
+  line-height: 1;
+}
+
+.brandLogo,
+.brandLogoMini,
+.brandIcon,
+.brandIconMini{
+  display:none !important;
+}
