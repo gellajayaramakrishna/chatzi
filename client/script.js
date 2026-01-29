@@ -347,3 +347,33 @@ if (typeof socket !== "undefined" && socket) {
     }
   });
 }
+
+/* ===== MATCH FIX (RESTORE STRANGER CONNECTION) ===== */
+if (typeof socket !== "undefined" && socket) {
+
+  socket.off("matched");
+  socket.on("matched", (data) => {
+    try {
+      console.log("Matched with stranger:", data);
+
+      if (typeof onMatched === "function") {
+        onMatched(data);
+      }
+
+      const statusEl = document.getElementById("statusLine");
+      if (statusEl) statusEl.textContent = "Connected to stranger";
+
+    } catch (e) {
+      console.error("Match handler error", e);
+    }
+  });
+
+}
+
+/* ===== FALLBACK MATCH HANDLER ===== */
+if (typeof onMatched !== "function") {
+  function onMatched() {
+    const statusEl = document.getElementById("statusLine");
+    if (statusEl) statusEl.textContent = "Connected";
+  }
+}
