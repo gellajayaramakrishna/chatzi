@@ -1,3 +1,9 @@
+// ---- Chatzi safety helpers (auto-added) ----
+function safeOn(el, ev, fn) { if (el) el.addEventListener(ev, fn); }
+function safeQS(sel) { return document.querySelector(sel); }
+function safeID(id) { return document.getElementById(id); }
+// -------------------------------------------
+
 document.addEventListener("gesturestart", function(e){ e.preventDefault(); });
 
 /* ===========================
@@ -199,7 +205,8 @@ window.addEventListener("keydown", (e) => {
 });
 
 /* ---------- GIF modal ---------- */
-gifBtn.addEventListener("click", () => {
+if (GIF_UI_OK) {
+  safeOn(gifBtn, "click", () => {
   overlay.style.display = "flex";
   gifUrl.value = "";
   gifUrl.focus();
@@ -279,12 +286,13 @@ const gifGrid = document.getElementById("gifGrid");
 const gifSearch = document.getElementById("gifSearch");
 const closeGif = document.getElementById("closeGif");
 
-gifBtn.addEventListener("click", () => {
+if (GIF_UI_OK) {
+  safeOn(gifBtn, "click", () => {
   gifPanel.classList.toggle("hidden");
   loadTrendingGifs();
 });
 
-closeGif.addEventListener("click", () => {
+  safeOn(closeGif, "click", () => {
   gifPanel.classList.add("hidden");
 });
 
@@ -294,7 +302,7 @@ function loadTrendingGifs(){
     .then(data => renderGifs(data.results));
 }
 
-gifSearch.addEventListener("input", () => {
+  safeOn(gifSearch, "input", () => {
   const q = gifSearch.value.trim();
   if(!q) return loadTrendingGifs();
 
@@ -347,6 +355,9 @@ if (typeof socket !== "undefined" && socket) {
     }
   });
 }
+}
+
+
 
 /* ===== MATCH FIX (RESTORE STRANGER CONNECTION) ===== */
 if (typeof socket !== "undefined" && socket) {
@@ -375,5 +386,14 @@ if (typeof onMatched !== "function") {
   function onMatched() {
     const statusEl = document.getElementById("statusLine");
     if (statusEl) statusEl.textContent = "Connected";
+  }
+}
+
+/* ===== GIF GUARD (PREVENT CHAT BREAK) ===== */
+function withGifUI(fn){
+  try{
+    if (typeof GIF_UI_OK !== "undefined" && GIF_UI_OK) fn();
+  }catch(e){
+    console.warn("GIF UI disabled due to error:", e);
   }
 }
