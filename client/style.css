@@ -201,3 +201,29 @@ button,input{font-family:inherit}
   .chatWrap{width:calc(100% - 16px);margin:8px auto 10px;height:calc(100vh - 64px - 18px)}
   .msg{max-width:88%}
 }
+
+/* ===== Chat bubble auto-fit fix ===== */
+.message {
+  width: fit-content;
+  max-width: 72%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  line-height: 1.4;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.message.self {
+  margin-left: auto;
+}
+
+.message.other {
+  margin-right: auto;
+}
+
+/* Mobile polish */
+@media (max-width: 600px) {
+  .message {
+    max-width: 85%;
+  }
+}
