@@ -1,71 +1,60 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Chatzi — Chat</title>
-  <link rel="icon" href="./assets/logo.svg" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body class="fullChatPage">
+
+  <!-- Top bar -->
   <div class="topbar">
     <div class="topLeft">
-      <img class="brandLogoSmall" src="./assets/logo.svg" alt="Chatzi" />
-      <div class="brandNameSmall">Chatzi</div>
+      <div class="logoMoon">🌗</div>
+      <div class="brand">Chatzi</div>
     </div>
 
     <div class="handleRow">
-      <span id="myHandle">@anonymous</span>
+      <span id="handle">@anonymous</span>
       <span class="greenDot" title="Online"></span>
-      <span class="pill" id="onlinePill">… online</span>
     </div>
 
     <div class="topRight">
       <span class="badge">Press <b>Esc</b> to skip</span>
-      <button class="iconBtn" id="helpBtn" title="Safety">🛡️</button>
     </div>
   </div>
 
+  <!-- Info banner -->
+  <div class="infoBanner">
+    ✨ <b>Send messages to your stranger!</b> ✨
+    <span class="infoSmall">Be kind 🤝 · No personal info 🚫 · Stay safe ✅</span>
+    <div class="infoStatus" id="matchStatus">Finding stranger…</div>
+  </div>
+
+  <!-- Chat area -->
   <div class="chatWrap">
-    <div class="hintBox">
-      ✨ <b>Send messages to your stranger!</b> ✨<br/>
-      Be kind 🤝 • No personal info 🚫 • Stay safe ✅
-    </div>
+    <div class="chatBox" id="messages"></div>
 
-    <div class="statusLine" id="statusLine">Finding stranger<span class="dots"><span>.</span><span>.</span><span>.</span></span></div>
+    <div class="typing" id="typing" style="opacity:0;">Stranger is typing…</div>
 
-    <div class="chatBox" id="chatBox"></div>
-
-    <div class="typingLine" id="typingLine" style="display:none;">Stranger is typing…</div>
-
-    <div class="chipsRow" id="chipsRow">
-      <button class="chip">🌍 Where are you from?</button>
-      <button class="chip">🔥 What brings you here today?</button>
-      <button class="chip">👀 What are you looking for?</button>
-      <button class="chip">🎵 What music are you into?</button>
-      <button class="chip">✨ Tell me something cool</button>
-    </div>
-
-    <div class="composer"><input id="messageInput" class="msgInput" placeholder="Message…" autocomplete="off" />
+    <div class="composer">
+      <input id="messageInput" class="msgInput" placeholder="Message…" autocomplete="off" />
       <button id="sendBtn" class="sendBtn">Send ➤</button>
       <button id="newChatBtn" class="newChatBtn">New Chat</button>
     </div>
-  </div><div class="overlay" id="overlay" style="display:none;">
+  </div>
+
+  <!-- Overlay modal -->
+  <div class="overlay" id="overlay" style="display:none;">
     <div class="modal">
-      <div class="modalTitle">Send a GIF</div>
-      <div class="modalSub">Paste a direct GIF URL (ends with .gif)</div>
-      <input id="gifUrl" class="modalInput" placeholder="https://…/something.gif" />
-      <div class="modalActions">
-        <button class="btnGhost" id="gifCancel">Cancel</button>
-        <button class="btnPrimary" id="gifSend">Send GIF</button>
-      <button class="iconBtn" id="soundBtn" title="Sound">🔊</button>
-<button class="iconBtn" id="themeBtn" title="Theme">🌙</button>
-</div>
+      <div class="modalTitle" id="modalTitle">Finding your match…</div>
+      <div class="modalSub" id="modalSub">Please wait…</div>
+      <button class="modalBtn" id="modalBtn">OK</button>
     </div>
   </div>
 
-  <!-- Socket.IO client -->
   <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
-  <script src="./script.js"></script>
+  <script src="/script.js"></script>
 </body>
-</html><div class="gifGrid"</div>
+</html>

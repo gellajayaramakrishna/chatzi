@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/client/start.html" },
+    { "source": "/start.html", "destination": "/client/start.html" },
+    { "source": "/index.html", "destination": "/client/index.html" },
+    { "source": "/chat.html", "destination": "/client/chat.html" },
+
+    { "source": "/style.css", "destination": "/client/style.css" },
+    { "source": "/script.js", "destination": "/client/script.js" },
+    { "source": "/assets/:path*", "destination": "/client/assets/:path*" }
+  ]
+}

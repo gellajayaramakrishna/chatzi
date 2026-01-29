@@ -1,5 +1,3 @@
-/* Chatzi client script (NO GIF) - stable matchmaking */
-
 const BACKEND_URL = "https://chatzi-backend.onrender.com";
 
 const $ = (id) => document.getElementById(id);
@@ -9,7 +7,7 @@ function qs(name) {
   return u.searchParams.get(name);
 }
 
-function escapeHtml(s) {
+function esc(s) {
   return (s || "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
   }[c]));
@@ -26,6 +24,7 @@ const sendBtn = $("sendBtn");
 const newChatBtn = $("newChatBtn");
 const handleEl = $("handle");
 const typingEl = $("typing");
+const matchStatus = $("matchStatus");
 
 let socket = null;
 let roomId = null;
@@ -35,76 +34,77 @@ const myName = qs("name") || "user";
 const myGender = qs("gender") || "Other";
 
 function showOverlay(title, sub, buttonText = "OK") {
-  if (!overlay) return;
   overlay.style.display = "flex";
-  if (modalTitle) modalTitle.textContent = title;
-  if (modalSub) modalSub.textContent = sub || "";
-  if (modalBtn) modalBtn.textContent = buttonText;
+  modalTitle.textContent = title;
+  modalSub.textContent = sub || "";
+  modalBtn.textContent = buttonText;
 }
-
 function hideOverlay() {
-  if (!overlay) return;
   overlay.style.display = "none";
 }
 
 function addSystem(msg) {
-  if (!messages) return;
   const div = document.createElement("div");
   div.className = "sys";
-  div.innerHTML = escapeHtml(msg);
+  div.innerHTML = esc(msg);
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
 
 function addMsg(text, mine) {
-  if (!messages) return;
   const div = document.createElement("div");
   div.className = mine ? "msg mine" : "msg";
-  div.innerHTML = escapeHtml(text);
+  div.innerHTML = esc(text);
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
 }
 
-function connectSocket() {
-  showOverlay("Finding your match...", "Connecting to server…", "Cancel");
+function setStatus(s) {
+  if (matchStatus) matchStatus.textContent = s;
+}
+
+function connect() {
+  showOverlay("Finding your match…", "Connecting to server…", "Cancel");
 
   socket = io(BACKEND_URL, {
     transports: ["polling", "websocket"],
     reconnection: true,
     reconnectionAttempts: 30,
-    timeout: 20000,
+    timeout: 20000
   });
 
   socket.on("connect", () => {
+    handleEl.textContent = "@anonymous";
     addSystem("Connected ✅");
     socket.emit("join", { name: myName, gender: myGender });
   });
 
   socket.on("connect_error", (e) => {
     addSystem("Connect error: " + (e?.message || "unknown"));
+    setStatus("Server not reachable");
     showOverlay("Server not reachable", "Press New Chat to retry.", "OK");
   });
 
   socket.on("finding", () => {
     matched = false;
     roomId = null;
-    showOverlay("Finding your match...", "Please wait…", "Cancel");
+    setStatus("Finding stranger…");
+    showOverlay("Finding your match…", "Please wait…", "Cancel");
   });
 
   socket.on("matched", (data) => {
     matched = true;
     roomId = data.roomId;
-
-    const partner = data.partner?.name || "stranger";
-    if (handleEl) handleEl.textContent = "@user";
     hideOverlay();
-    addSystem("Matched ✅ You are chatting with " + partner);
+    setStatus("Connected ✅");
+    addSystem("Matched ✅ You are now chatting.");
   });
 
   socket.on("partner_left", () => {
     matched = false;
     roomId = null;
     addSystem("Stranger left the chat.");
+    setStatus("Stranger left");
     showOverlay("Stranger left", "Press New Chat to find someone else.", "OK");
   });
 
@@ -114,21 +114,18 @@ function connectSocket() {
   });
 
   socket.on("typing", () => {
-    if (!typingEl) return;
     typingEl.style.opacity = "1";
     typingEl.textContent = "Stranger is typing…";
-    setTimeout(() => {
-      typingEl.style.opacity = "0";
-    }, 900);
+    setTimeout(() => (typingEl.style.opacity = "0"), 900);
   });
 }
 
 function sendMessage() {
-  const text = (messageInput?.value || "").trim();
+  const text = (messageInput.value || "").trim();
   if (!text) return;
 
   if (!socket || !socket.connected || !matched || !roomId) {
-    addSystem("Not connected / not matched yet.");
+    addSystem("Not matched yet…");
     return;
   }
 
@@ -136,34 +133,31 @@ function sendMessage() {
   messageInput.value = "";
 }
 
-let typingThrottle = null;
+let typingCooldown = null;
 function onTyping() {
   if (!socket || !socket.connected || !roomId) return;
-  if (typingThrottle) return;
-  typingThrottle = setTimeout(() => (typingThrottle = null), 350);
+  if (typingCooldown) return;
+  typingCooldown = setTimeout(() => (typingCooldown = null), 350);
   socket.emit("typing", { roomId });
 }
 
 function newChat() {
   if (!socket) return;
   socket.emit("skip");
+  setStatus("Finding stranger…");
 }
 
-if (sendBtn) sendBtn.addEventListener("click", sendMessage);
+sendBtn.addEventListener("click", sendMessage);
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") sendMessage();
+});
+messageInput.addEventListener("input", onTyping);
 
-if (messageInput) {
-  messageInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
-  messageInput.addEventListener("input", onTyping);
-}
-
-if (newChatBtn) newChatBtn.addEventListener("click", newChat);
+newChatBtn.addEventListener("click", newChat);
+modalBtn.addEventListener("click", hideOverlay);
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") newChat();
 });
 
-if (modalBtn) modalBtn.addEventListener("click", () => hideOverlay());
-
-connectSocket();
+connect();
