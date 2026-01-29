@@ -6,26 +6,16 @@
     </linearGradient>
   </defs>
 
-  <!-- Outer soft tile -->
+  <!-- Rounded premium tile -->
   <rect x="8" y="8" width="80" height="80" rx="24" fill="url(#g)"/>
 
-  <!-- Abstract flame / drop -->
+  <!-- Half moon silhouette -->
   <path d="
-    M48 22
-    C38 36 34 44 34 52
-    C34 64 40 72 48 76
-    C56 72 62 64 62 52
-    C62 44 58 36 48 22
+    M56 24
+    C44 26 36 38 36 48
+    C36 58 44 70 56 72
+    C50 66 48 58 48 48
+    C48 38 50 30 56 24
     Z
   " fill="#FFFFFF" opacity="0.95"/>
-
-  <!-- Inner cut for depth -->
-  <path d="
-    M48 34
-    C42 44 40 48 40 54
-    C40 60 44 64 48 66
-    C52 64 56 60 56 54
-    C56 48 54 44 48 34
-    Z
-  " fill="#6D28D9" opacity="0.22"/>
 </svg>
