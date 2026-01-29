@@ -246,3 +246,14 @@ button,input{font-family:inherit}
   max-width: 100% !important;
 }
 
+
+/* Nuclear: if messages are rendered as inputs */
+#messages input, #messages textarea,
+#chatMessages input, #chatMessages textarea,
+.chatMessages input, .chatMessages textarea,
+.messages input, .messages textarea {
+  width: fit-content !important;
+  max-width: min(70%, 680px) !important;
+  display: inline-block !important;
+}
+
