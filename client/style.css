@@ -227,3 +227,42 @@ button,input{font-family:inherit}
     max-width: 85%;
   }
 }
+
+/* ===== FORCE chat bubbles to auto-fit text (override) ===== */
+
+/* Common bubble class names */
+.message, .msg, .bubble, .chatBubble, .msgBubble, .messageBubble, .chat-bubble, .chat_message, .chatMessage {
+  width: fit-content !important;
+  max-width: 72% !important;
+  display: inline-block !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: break-word !important;
+}
+
+/* If your messages are inside a list/container, force children to not be full width */
+#messages > *, #chatMessages > *, .messages > *, .chatMessages > *, .chatLog > *, .chatArea > * {
+  width: auto !important;
+}
+
+/* Align typical "self" message wrappers to right */
+.self, .me, .mine, .outgoing {
+  margin-left: auto !important;
+  justify-content: flex-end !important;
+  text-align: left !important;
+}
+
+/* Align typical "other" message wrappers to left */
+.other, .them, .incoming {
+  margin-right: auto !important;
+  justify-content: flex-start !important;
+  text-align: left !important;
+}
+
+/* Mobile: allow a bit wider */
+@media (max-width: 600px) {
+  .message, .msg, .bubble, .chatBubble, .msgBubble, .messageBubble, .chat-bubble, .chat_message, .chatMessage {
+    max-width: 85% !important;
+  }
+}
+
