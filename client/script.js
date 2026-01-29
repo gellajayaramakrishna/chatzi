@@ -269,3 +269,81 @@ themeBtn.addEventListener("click", () => {
   localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
   updateThemeIcon();
 });
+
+/* ===== GIF PICKER (TENOR) ===== */
+
+const TENOR_KEY = "LIVDSRZULELA"; // public demo key
+const gifBtn = document.getElementById("gifBtn");
+const gifPanel = document.getElementById("gifPanel");
+const gifGrid = document.getElementById("gifGrid");
+const gifSearch = document.getElementById("gifSearch");
+const closeGif = document.getElementById("closeGif");
+
+gifBtn.addEventListener("click", () => {
+  gifPanel.classList.toggle("hidden");
+  loadTrendingGifs();
+});
+
+closeGif.addEventListener("click", () => {
+  gifPanel.classList.add("hidden");
+});
+
+function loadTrendingGifs(){
+  fetch(`https://g.tenor.com/v1/trending?key=${TENOR_KEY}&limit=20`)
+    .then(res => res.json())
+    .then(data => renderGifs(data.results));
+}
+
+gifSearch.addEventListener("input", () => {
+  const q = gifSearch.value.trim();
+  if(!q) return loadTrendingGifs();
+
+  fetch(`https://g.tenor.com/v1/search?q=${encodeURIComponent(q)}&key=${TENOR_KEY}&limit=20`)
+    .then(res => res.json())
+    .then(data => renderGifs(data.results));
+});
+
+function renderGifs(gifs){
+  gifGrid.innerHTML = "";
+  gifs.forEach(g => {
+    const url = g.media[0].tinygif.url;
+    const img = document.createElement("img");
+    img.src = url;
+    img.onclick = () => {
+      socket.emit("message", { type:"gif", url });
+      addMessage("me", `<img src="${url}" />`, true);
+      gifPanel.classList.add("hidden");
+    };
+    gifGrid.appendChild(img);
+  });
+}
+
+/* ===== OVERRIDE MESSAGE HANDLER (TEXT + GIF) ===== */
+if (typeof socket !== "undefined" && socket) {
+  // Remove any previous message listeners to avoid duplicates
+  socket.off("message");
+
+  socket.on("message", (data) => {
+    try {
+      // GIF message format: { type:"gif", url:"..." }
+      if (data && typeof data === "object" && data.type === "gif" && data.url) {
+        const html = `<img src="${data.url}" style="max-width:220px;border-radius:12px;display:block;" />`;
+        if (typeof addMessage === "function") {
+          // if your addMessage supports HTML flag, it will ignore extra arg if not needed
+          addMessage("them", html, true);
+        }
+        return;
+      }
+
+      // Text formats:
+      // - "hello"
+      // - { text: "hello" }
+      const text = (typeof data === "string") ? data : (data && data.text ? data.text : "");
+      if (!text) return;
+
+      if (typeof addMessage === "function") addMessage("them", text);
+    } catch (e) {
+      // ignore
+    }
+  });
+}
