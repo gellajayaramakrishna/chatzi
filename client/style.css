@@ -322,3 +322,54 @@ button,input{font-family:inherit}
   }
 }
 
+
+/* ===== HARD FIX: prevent side-by-side messages no matter the classnames ===== */
+
+/* 1) Make any likely chat-log container a vertical column */
+#messages, #chatMessages, #chatLog, #messageList,
+.messages, .chatMessages, .chatLog, .messageList,
+.chatWrap .chatArea, .chatWrap .chatBody, .chatWrap .messagesArea,
+.chatWrap [id*="message"], .chatWrap [class*="message"],
+.chatWrap [id*="chat"], .chatWrap [class*="chat"] {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* 2) Every direct child inside those containers must start on a new line */
+#messages > *, #chatMessages > *, #chatLog > *, #messageList > *,
+.messages > *, .chatMessages > *, .chatLog > *, .messageList > *,
+.chatWrap .chatArea > *, .chatWrap .chatBody > *, .chatWrap .messagesArea > *,
+.chatWrap [id*="message"] > *, .chatWrap [class*="message"] > *,
+.chatWrap [id*="chat"] > *, .chatWrap [class*="chat"] > * {
+  width: 100% !important;
+  display: flex !important;
+}
+
+/* 3) Align left/right using common patterns (self/me vs other/you) */
+.self, .me, .mine, .outgoing, .sent {
+  justify-content: flex-end !important;
+}
+.other, .you, .incoming, .received {
+  justify-content: flex-start !important;
+}
+
+/* 4) Bubble should hug the text (NOT stretch full width) */
+.message, .msg, .bubble, .chatBubble, .msgBubble,
+.self .message, .self .bubble, .me .message, .me .bubble,
+.other .message, .other .bubble, .you .message, .you .bubble {
+  width: fit-content !important;
+  max-width: 70% !important;
+  padding: 10px 14px !important;
+  border-radius: 18px !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+/* 5) Mobile */
+@media (max-width: 600px) {
+  .message, .msg, .bubble, .chatBubble, .msgBubble {
+    max-width: 85% !important;
+  }
+}
+
