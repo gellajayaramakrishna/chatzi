@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>chatzi — Chat</title>
+  <meta name="description" content="chatzi 1-on-1 anonymous chat with strangers." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="chatPage">
+  <div class="chatTop">
+    <div class="brand">
+      <a class="logo" href="/start" aria-label="Back">←</a>
+      <div>
+        <div class="name" id="who">@anonymous</div>
+        <div class="small"><span class="dot"></span> online • Press <b>ESC</b> to skip</div>
+      </div>
+    </div>
+
+    <div class="rightIcons">
+      <span class="pill">🟢 <span id="online">0</span></span>
+    </div>
+  </div>
+
+  <div class="chatMain">
+    <div class="tipCard">
+      <div class="tipTitle">✨ Send messages to your stranger ✨</div>
+      <div class="tipBody">
+        Share thoughts 💭, feelings 😊 & experiences 💪. Be kind 🤝 |
+        No oversharing 🔒 | No scams 🚫 | Stay safe ✅
+      </div>
+    </div>
+
+    <div class="typingLine" id="typingLine" style="display:none;">Stranger is typing…</div>
+
+    <div id="messages" class="messages big" aria-live="polite"></div>
+  </div>
+
+  <div class="chatBottom">
+    <div class="starterBar">
+      <div class="starterTitle">Click to send a conversation starter!</div>
+      <div class="chips" id="chips">
+        <div class="chip">🌍 Where are you from?</div>
+        <div class="chip">🍿 What brings you here today?</div>
+        <div class="chip">👀 What are you looking for?</div>
+        <div class="chip">🎵 What music are you into?</div>
+        <div class="chip">👋 ASL? (Age, Sex, Location)</div>
+      </div>
+    </div>
+
+    <form id="form" class="composer fixed">
+      <input id="input" class="input" type="text" placeholder="Message..." autocomplete="off" disabled />
+      <button class="btn primary" type="submit" id="sendBtn" disabled>Send</button>
+
+      <button class="btn" type="button" id="findBtn">Start Chat</button>
+      <button class="btn danger" type="button" id="nextBtn" disabled>New Chat</button>
+
+      <button class="btn warn" type="button" id="blockBtn" disabled>Block</button>
+      <button class="btn warn2" type="button" id="reportBtn" disabled>Report</button>
+    </form>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/chat.js"></script>
+</body>
+</html>

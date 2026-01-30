@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>chatzi — Start</title>
+  <meta name="description" content="Choose gender and optional interests to start chatting." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <a class="logo" href="/start" aria-label="Back">←</a>
+        <div>
+          <div class="name">chatzi</div>
+          <div class="small">Choose gender • Interests optional</div>
+        </div>
+      </div>
+      <div class="pill">🟢 <span id="online">0</span> online</div>
+    </div>
+
+    <div class="center">
+      <div class="card">
+        <h1>Start Chatting!</h1>
+        <p>Select your gender. Add interests if you want (optional).</p>
+
+        <div class="field">
+          <div class="label">Select your gender</div>
+          <div class="segRow">
+            <button class="seg" data-g="male">Male</button>
+            <button class="seg" data-g="female">Female</button>
+            <button class="seg" data-g="other">Other</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="label">Interests (optional)</div>
+          <div class="interestRow" id="interestRow">
+            <button class="itag" data-i="music">🎵 Music</button>
+            <button class="itag" data-i="movies">🍿 Movies</button>
+            <button class="itag" data-i="anime">✨ Anime</button>
+            <button class="itag" data-i="gaming">🎮 Gaming</button>
+            <button class="itag" data-i="sports">🏏 Sports</button>
+            <button class="itag" data-i="coding">💻 Coding</button>
+            <button class="itag" data-i="travel">🌍 Travel</button>
+            <button class="itag" data-i="books">📚 Books</button>
+          </div>
+          <div class="small" style="margin-top:8px; opacity:.9;">
+            You can skip interests and still chat.
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <button class="btn primary" id="textChatBtn" disabled>Text Chat</button>
+        </div>
+
+        <p class="small" style="margin-top:14px">
+          Safety: Don’t share private info. Press <b>ESC</b> anytime to skip to a new chat.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const s = io();
+    s.on("onlineCount", (p) => document.getElementById("online").textContent = p?.count ?? 0);
+
+    const segs = [...document.querySelectorAll(".seg")];
+    const itags = [...document.querySelectorAll(".itag")];
+    const textBtn = document.getElementById("textChatBtn");
+
+    function getInterests(){
+      try { return JSON.parse(localStorage.getItem("cm_interests") || "[]"); }
+      catch { return []; }
+    }
+    function setInterests(arr){
+      localStorage.setItem("cm_interests", JSON.stringify(arr));
+    }
+
+    function setActiveGender(g){
+      segs.forEach(b => b.classList.toggle("active", b.dataset.g === g));
+      localStorage.setItem("cm_gender", g);
+      textBtn.disabled = false;
+    }
+
+    function toggleInterest(i){
+      const cur = new Set(getInterests());
+      if (cur.has(i)) cur.delete(i); else cur.add(i);
+      const next = [...cur].slice(0, 5); // cap 5 interests
+      setInterests(next);
+      renderInterests();
+    }
+
+    function renderInterests(){
+      const cur = new Set(getInterests());
+      itags.forEach(b => b.classList.toggle("active", cur.has(b.dataset.i)));
+    }
+
+    // restore
+    const savedG = localStorage.getItem("cm_gender");
+    if (savedG) setActiveGender(savedG);
+    renderInterests();
+
+    segs.forEach(btn => btn.addEventListener("click", () => setActiveGender(btn.dataset.g)));
+    itags.forEach(btn => btn.addEventListener("click", () => toggleInterest(btn.dataset.i)));
+
+    textBtn.addEventListener("click", () => {
+      // No name here; chat page will auto-generate
+      location.href = "/chat";
+    });
+  </script>
+</body>
+</html>

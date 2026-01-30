@@ -1,0 +1,436 @@
+* { box-sizing: border-box; }
+:root{
+  --bg1:#0b0714;
+  --bg2:#160a2c;
+  --card: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.10);
+  --text: #f1edff;
+  --muted: rgba(241,237,255,0.78);
+  --purple:#7c3aed;
+  --purple2:#a855f7;
+  --chip: rgba(168,85,247,0.14);
+}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color: var(--text);
+  background: radial-gradient(1200px 700px at 50% 10%, rgba(168,85,247,0.25), transparent 60%),
+              linear-gradient(180deg, var(--bg1), var(--bg2));
+  min-height:100vh;
+}
+a{ color:inherit; text-decoration:none; }
+.wrap{ max-width: 1100px; margin: 0 auto; padding: 18px; }
+
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  gap: 12px;
+}
+.brand{ display:flex; align-items:center; gap:10px; }
+.logo{
+  width:38px; height:38px; border-radius:12px;
+  display:grid; place-items:center;
+  background: linear-gradient(135deg, rgba(124,58,237,0.45), rgba(168,85,247,0.25));
+  border:1px solid var(--border);
+  font-weight:900;
+}
+.brand .name{ font-weight:900; letter-spacing:0.2px; }
+.pill{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:8px 12px; border-radius:999px;
+  background: rgba(255,255,255,0.05);
+  border:1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.center{
+  min-height: calc(100vh - 80px);
+  display:grid; place-items:center;
+}
+.card{
+  width:min(680px, 92vw);
+  background: var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding: 22px;
+  box-shadow: 0 18px 60px rgba(0,0,0,0.35);
+}
+.card h1{ margin: 8px 0 6px; font-size: 34px; }
+.card p{ margin: 0 0 16px; color: var(--muted); line-height:1.6; }
+
+.btnRow{ display:flex; gap:12px; flex-wrap:wrap; margin-top: 10px; }
+.btn{
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor:pointer;
+}
+.btn.primary{
+  border-color: rgba(124,58,237,0.65);
+  background: linear-gradient(135deg, rgba(124,58,237,0.95), rgba(168,85,247,0.75));
+}
+.btn.danger{
+  border-color: rgba(244,63,94,0.45);
+  background: rgba(244,63,94,0.18);
+}
+.btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+.field{ display:grid; gap:8px; margin: 14px 0; }
+.label{ font-size: 13px; color: var(--muted); }
+.small{ font-size:13px; color: var(--muted); }
+
+.segRow{ display:flex; gap:10px; flex-wrap:wrap; }
+.seg{
+  padding: 10px 12px;
+  border-radius: 14px;
+  border:1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+  cursor:pointer;
+  font-weight: 800;
+}
+.seg.active{
+  border-color: rgba(168,85,247,0.75);
+  background: rgba(168,85,247,0.18);
+}
+
+.interestRow{ display:flex; gap:10px; flex-wrap:wrap; }
+.itag{
+  padding: 10px 12px;
+  border-radius: 999px;
+  border:1px solid rgba(168,85,247,0.30);
+  background: rgba(168,85,247,0.10);
+  cursor:pointer;
+  font-weight: 800;
+  font-size: 13px;
+  color: rgba(241,237,255,0.92);
+}
+.itag.active{
+  border-color: rgba(168,85,247,0.75);
+  background: rgba(168,85,247,0.22);
+}
+
+/* ---------- Chat page layout (like SS placements) ---------- */
+.chatPage{
+  background: #ffffff;
+  color: #111827;
+  min-height: 100vh;
+}
+.chatTop{
+  height: 64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+.chatTop .logo{
+  background: linear-gradient(135deg, rgba(124,58,237,0.20), rgba(168,85,247,0.18));
+  border: 1px solid #e5e7eb;
+  color: #111827;
+}
+.chatTop .name{ color:#111827; }
+.chatTop .pill{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  color:#374151;
+}
+.dot{
+  display:inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #22c55e;
+  margin-right: 6px;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.15);
+}
+
+.chatMain{
+  height: calc(100vh - 64px - 150px);
+  padding: 14px 16px;
+  overflow:auto;
+  background: #fff;
+}
+.tipCard{
+  max-width: 620px;
+  margin: 14px auto 16px;
+  border: 1px solid #e5e7eb;
+  background: #faf5ff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align:center;
+}
+.tipTitle{
+  font-weight: 900;
+  color: #a21caf;
+  margin-bottom: 6px;
+}
+.tipBody{
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.messages{
+  max-width: 900px;
+  margin: 0 auto;
+  display:flex;
+  flex-direction:column;
+  gap: 10px;
+  padding-bottom: 10px;
+}
+.messages.big{
+  min-height: 260px;
+}
+.bubble{
+  max-width: 78%;
+  padding: 10px 12px;
+  border-radius: 16px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+.bubble.me{
+  align-self:flex-end;
+  background: rgba(124,58,237,0.12);
+}
+.bubble.them{
+  align-self:flex-start;
+  background: #f9fafb;
+}
+.bubble.system{
+  align-self:center;
+  max-width: 100%;
+  background: #fff;
+  border-style: dashed;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.chatBottom{
+  height: 150px;
+  border-top: 1px solid #e5e7eb;
+  background: #fdf2f8;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.starterBar{
+  padding: 10px 12px 6px;
+}
+.starterTitle{
+  text-align:center;
+  color:#a21caf;
+  font-weight: 900;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.chips{
+  display:flex;
+  gap: 10px;
+  overflow:auto;
+  padding: 6px 2px;
+}
+.chip{
+  flex: 0 0 auto;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border:1px solid rgba(236,72,153,0.30);
+  background: rgba(236,72,153,0.10);
+  cursor:pointer;
+  font-weight: 800;
+  font-size: 13px;
+  color: #7c2d12;
+}
+
+.composer{
+  display:flex;
+  gap: 10px;
+  padding: 10px 12px 12px;
+  align-items:center;
+}
+.composer.fixed{
+  padding-top: 0;
+}
+.input{
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+  outline:none;
+}
+
+/* ---- Fix gender button text visibility ---- */
+.seg{
+  color: #f1edff !important;
+}
+.seg.active{
+  color: #ffffff !important;
+}
+
+/* ===========================
+   Chat page: make it purple theme (like gender page)
+   Keep layout placements same
+   =========================== */
+
+/* remove the white theme */
+.chatPage{
+  background: radial-gradient(1200px 700px at 50% 10%, rgba(168,85,247,0.25), transparent 60%),
+              linear-gradient(180deg, var(--bg1), var(--bg2)) !important;
+  color: var(--text) !important;
+}
+
+/* top bar as translucent purple */
+.chatTop{
+  background: rgba(11, 7, 20, 0.65) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: blur(10px);
+}
+.chatTop .name{ color: var(--text) !important; }
+.chatTop .small{ color: rgba(241,237,255,0.72) !important; }
+.chatTop .pill{
+  background: rgba(255,255,255,0.06) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  color: rgba(241,237,255,0.82) !important;
+}
+.chatTop .logo{
+  background: linear-gradient(135deg, rgba(124,58,237,0.45), rgba(168,85,247,0.25)) !important;
+  border: 1px solid rgba(255,255,255,0.10) !important;
+  color: var(--text) !important;
+}
+
+/* main area stays big, but now transparent */
+.chatMain{
+  background: transparent !important;
+}
+
+/* center tip card looks like a soft purple card */
+.tipCard{
+  border: 1px solid rgba(255,255,255,0.12) !important;
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(241,237,255,0.90) !important;
+}
+.tipTitle{ color: rgba(241,237,255,0.95) !important; }
+.tipBody{ color: rgba(241,237,255,0.80) !important; }
+
+/* message bubbles - purple theme */
+.bubble{
+  border: 1px solid rgba(255,255,255,0.12) !important;
+}
+.bubble.me{
+  background: rgba(124,58,237,0.28) !important;
+  color: rgba(241,237,255,0.95) !important;
+}
+.bubble.them{
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(241,237,255,0.92) !important;
+}
+.bubble.system{
+  background: rgba(255,255,255,0.04) !important;
+  color: rgba(241,237,255,0.78) !important;
+  border-style: dashed !important;
+}
+
+/* bottom area: purple glass panel like SS3 */
+.chatBottom{
+  background: rgba(255,255,255,0.06) !important;
+  border-top: 1px solid rgba(255,255,255,0.10) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* starter title */
+.starterTitle{
+  color: rgba(241,237,255,0.88) !important;
+}
+
+/* chips like purple pills */
+.chip{
+  border: 1px solid rgba(168,85,247,0.35) !important;
+  background: rgba(168,85,247,0.12) !important;
+  color: rgba(241,237,255,0.92) !important;
+}
+
+/* input + composer: glass look */
+.input{
+  border: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.06) !important;
+  color: rgba(241,237,255,0.95) !important;
+}
+.input::placeholder{
+  color: rgba(241,237,255,0.55) !important;
+}
+
+
+/* ---- UI tightening (closer to SS1) ---- */
+.messages{
+  max-width: 760px !important;    /* tighter, less empty space */
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+.bubble{
+  max-width: 70% !important;
+}
+.typingLine{
+  max-width: 760px;
+  margin: 0 auto 10px;
+  font-size: 13px;
+  color: rgba(241,237,255,0.75);
+  padding: 6px 10px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 999px;
+}
+
+/* extra button colors */
+.btn.warn{
+  border-color: rgba(245,158,11,0.45);
+  background: rgba(245,158,11,0.16);
+}
+.btn.warn2{
+  border-color: rgba(239,68,68,0.45);
+  background: rgba(239,68,68,0.16);
+}
+
+/* ===========================
+   Mobile responsiveness
+   =========================== */
+@media (max-width: 520px){
+  .wrap{ padding: 12px; }
+  .topbar{ gap: 10px; }
+  .logo{ width: 34px; height: 34px; border-radius: 11px; }
+  .pill{ padding: 7px 10px; font-size: 12px; }
+
+  .card{
+    width: 100%;
+    padding: 16px;
+    border-radius: 16px;
+  }
+  .card h1{ font-size: 26px; }
+  .btnRow{ gap: 10px; }
+  .btn{ width: 100%; justify-content: center; }
+
+  .segRow, .interestRow{ gap: 8px; }
+  .seg{ flex: 1 1 auto; text-align:center; }
+  .itag{ flex: 1 1 auto; text-align:center; }
+
+  /* Chat page: better fit on mobile */
+  .chatPage{ min-height: 100dvh; }
+  .chatTop{ height: 58px; padding: 0 12px; }
+  .chatBottom{ height: 120px; }
+  .chatMain{
+    height: calc(100dvh - 58px - 120px);
+    padding: 10px 12px;
+  }
+  .messages{ padding-left: 6px !important; padding-right: 6px !important; }
+  .bubble{ max-width: 86% !important; font-size: 14px; }
+  .composer{ padding: 10px 10px 12px; gap: 8px; }
+  .input{ padding: 11px 12px; }
+}

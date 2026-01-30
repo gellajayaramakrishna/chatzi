@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>chatzi — Anonymous Stranger Chat</title>
+  <meta name="description" content="chatzi lets you chat anonymously with strangers instantly. No signup. Just start chatting." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">🦊</div>
+        <div>
+          <div class="name">chatzi</div>
+          <div class="small">Anonymous 1-on-1 stranger chat</div>
+        </div>
+      </div>
+      <div class="pill">🟢 <span id="online">0</span> online</div>
+    </div>
+
+    <div class="center">
+      <div class="card">
+        <h1>Start Chatting</h1>
+        <p>No signup. No personal info. Just chat with a random stranger.</p>
+
+        <div class="btnRow">
+          <button class="btn primary" id="startBtn">Start Chat</button>
+        </div>
+
+        <p class="small" style="margin-top:14px">
+          Tip: Be respectful. Don’t share private info.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const s = io();
+    s.on("onlineCount", (p) => document.getElementById("online").textContent = p?.count ?? 0);
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      location.href = "/gender";
+    });
+  </script>
+</body>
+</html>
