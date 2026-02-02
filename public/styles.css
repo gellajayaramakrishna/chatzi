@@ -434,3 +434,54 @@ a{ color:inherit; text-decoration:none; }
   .composer{ padding: 10px 10px 12px; gap: 8px; }
   .input{ padding: 11px 12px; }
 }
+
+/* =========================
+   Mobile full-screen chat fix
+   ========================= */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.chatPage {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chatTop {
+  flex: 0 0 auto;
+}
+
+.chatMain {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 10px;
+}
+
+.chatBottom {
+  flex: 0 0 auto;
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bubble {
+  max-width: 85%;
+  word-wrap: break-word;
+}
+
+@media (max-width: 600px) {
+  .chatMain {
+    padding-bottom: 12px;
+  }
+
+  .input {
+    font-size: 16px;
+  }
+}
