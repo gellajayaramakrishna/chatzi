@@ -13,6 +13,14 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const server = http.createServer(app);
 
+app.use((req, res, next) => {
+  if (req.headers.host === 'www.chatzi.me') {
+    return res.redirect(301, 'https://chatzi.me' + req.originalUrl);
+  }
+  next();
+});
+
+
 app.set("trust proxy", 1);
 
 app.use(helmet({ contentSecurityPolicy: false }));
